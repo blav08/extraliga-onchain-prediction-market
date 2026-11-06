@@ -1,0 +1,129 @@
+{
+ "_note": "SAMPLE DATA for offline demo, fixture ids are fake",
+ "response": [
+  {
+   "id": 900001,
+   "timestamp": 1794078827,
+   "status": {
+    "short": "NS",
+    "long": "NS"
+   },
+   "teams": {
+    "home": {
+     "id": 1,
+     "name": "HC Sparta Praha",
+     "logo": null
+    },
+    "away": {
+     "id": 2,
+     "name": "HC Oceláři Třinec",
+     "logo": null
+    }
+   },
+   "scores": {
+    "home": null,
+    "away": null
+   },
+   "periods": {
+    "first": null,
+    "second": null,
+    "third": null,
+    "overtime": null,
+    "penalties": null
+   }
+  },
+  {
+   "id": 900002,
+   "timestamp": 1794165227,
+   "status": {
+    "short": "NS",
+    "long": "NS"
+   },
+   "teams": {
+    "home": {
+     "id": 1,
+     "name": "HC Kometa Brno",
+     "logo": null
+    },
+    "away": {
+     "id": 2,
+     "name": "HC Dynamo Pardubice",
+     "logo": null
+    }
+   },
+   "scores": {
+    "home": null,
+    "away": null
+   },
+   "periods": {
+    "first": null,
+    "second": null,
+    "third": null,
+    "overtime": null,
+    "penalties": null
+   }
+  },
+  {
+   "id": 900003,
+   "timestamp": 1793913227,
+   "status": {
+    "short": "FT",
+    "long": "FT"
+   },
+   "teams": {
+    "home": {
+     "id": 1,
+     "name": "Bílí Tygři Liberec",
+     "logo": null
+    },
+    "away": {
+     "id": 2,
+     "name": "Mountfield HK",
+     "logo": null
+    }
+   },
+   "scores": {
+    "home": 4,
+    "away": 2
+   },
+   "periods": {
+    "first": null,
+    "second": null,
+    "third": null,
+    "overtime": null,
+    "penalties": null
+   }
+  },
+  {
+   "id": 900004,
+   "timestamp": 1794244427,
+   "status": {
+    "short": "POST",
+    "long": "POST"
+   },
+   "teams": {
+    "home": {
+     "id": 1,
+     "name": "HC Škoda Plzeň",
+     "logo": null
+    },
+    "away": {
+     "id": 2,
+     "name": "Rytíři Kladno",
+     "logo": null
+    }
+   },
+   "scores": {
+    "home": null,
+    "away": null
+   },
+   "periods": {
+    "first": null,
+    "second": null,
+    "third": null,
+    "overtime": null,
+    "penalties": null
+   }
+  }
+ ]
+}

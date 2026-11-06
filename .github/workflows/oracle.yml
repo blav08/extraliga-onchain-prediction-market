@@ -1,0 +1,56 @@
+name: oracle
+
+on:
+  schedule:
+    # Every 30 min. GitHub cron is best-effort and can start a few minutes late;
+    # the contract tolerates that (settle just happens on the next run).
+    - cron: "7,37 * * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Plan only, send no transactions"
+        type: boolean
+        default: false
+
+# Never let two runs overlap: they would race on the same nonce
+concurrency:
+  group: oracle
+  cancel-in-progress: false
+
+permissions:
+  contents: write   # to commit data/board.json and the audit log
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+
+      - name: Unit tests (refuse to run a broken oracle)
+        run: python -m pytest -q tests/test_planner.py tests/test_sources.py
+
+      - name: Reconcile chain with match data
+        env:
+          RPC_URL: ${{ secrets.RPC_URL }}
+          POOL_ADDRESS: ${{ vars.POOL_ADDRESS }}
+          ORACLE_PRIVATE_KEY: ${{ secrets.ORACLE_PRIVATE_KEY }}
+          APISPORTS_KEY: ${{ secrets.APISPORTS_KEY }}
+          LEAGUE_ID: ${{ vars.LEAGUE_ID }}
+          SEASON: ${{ vars.SEASON }}
+          DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
+        run: python -m oracle run
+
+      - name: Publish board + audit log
+        if: always()
+        run: |
+          git config user.name "match-oracle[bot]"
+          git config user.email "match-oracle[bot]@users.noreply.github.com"
+          git add data/
+          git diff --cached --quiet || git commit -m "oracle: update board [skip ci]"
+          git push
