@@ -3,3 +3,8 @@ __pycache__/
 .pytest_cache/
 *.pyc
 out.json
+.idea/
+docs/test_board.json
+tests/frontend/env.json
+tests/frontend/*.png
+node_modules/

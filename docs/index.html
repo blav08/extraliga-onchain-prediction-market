@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Extraliga Prediction Market</title>
+  <meta name="description" content="Pick winners of Czech Extraliga hockey games with free test MATCH tokens. Pools settle on-chain on Sepolia.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cellipse cx='16' cy='20' rx='13' ry='5' fill='%2323262B'/%3E%3Crect x='3' y='12' width='26' height='8' fill='%2323262B'/%3E%3Cellipse cx='16' cy='12' rx='13' ry='5' fill='%23474B52'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Big+Shoulders+Display:wght@600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="bar">
+    <a class="wordmark" href="#top" aria-label="Extraliga Prediction Market, home">
+      <svg class="puck" viewBox="0 0 32 32" aria-hidden="true"><ellipse cx="16" cy="20" rx="13" ry="5"/><rect x="3" y="12" width="26" height="8"/><ellipse class="puck-top" cx="16" cy="12" rx="13" ry="5"/></svg>
+      <span>Extraliga Prediction Market</span>
+    </a>
+    <span class="net" title="Sepolia is an Ethereum test network. Tokens here have no value.">Sepolia testnet</span>
+    <div class="wallet" id="wallet" aria-live="polite"></div>
+  </header>
+
+  <main id="top">
+    <section class="intro">
+      <h1>Pick the winner of Czech Extraliga games</h1>
+      <p>Stake free test MATCH tokens on real fixtures. Betting closes at face-off. After the final horn an oracle settles the pool on-chain and winners split it, overtime and shootouts included.</p>
+    </section>
+
+    <div class="notice" id="notice" role="status" hidden></div>
+
+    <section aria-labelledby="open-h">
+      <h2 id="open-h">Open for bets</h2>
+      <div id="open" class="rinks"><p class="empty">Loading fixtures…</p></div>
+    </section>
+
+    <section aria-labelledby="closed-h" id="closed-section" hidden>
+      <h2 id="closed-h">Played and settling</h2>
+      <div id="closed" class="rinks compact"></div>
+    </section>
+
+    <section aria-labelledby="done-h" id="done-section" hidden>
+      <h2 id="done-h">Final results</h2>
+      <div id="done" class="rinks compact"></div>
+    </section>
+
+    <section class="how" aria-labelledby="how-h">
+      <h2 id="how-h">How it works</h2>
+      <ol class="steps">
+        <li><strong>Get test tokens.</strong> Connect MetaMask on Sepolia and take 100 free MATCH from the faucet once a day. You also need a little Sepolia ETH for gas, available from a <a href="https://cloud.google.com/application/web3/faucet/ethereum/sepolia" target="_blank" rel="noopener">public faucet</a>.</li>
+        <li><strong>Pick a side.</strong> Tap a team's half of the rink and choose your stake. All stakes on a game form one pool; the payout shown is what you would get if the game ended with the pool as it is now.</li>
+        <li><strong>Collect.</strong> When the game is final, 2&nbsp;% of the pool is burned and the rest is split between everyone who backed the winner, in proportion to their stake. Postponed games refund everyone in full.</li>
+      </ol>
+      <div class="trust">
+        <h3>What you are trusting</h3>
+        <p>Results are written on-chain by one oracle account that runs every 30 minutes on GitHub Actions. It can only open, settle and cancel games; it cannot touch anyone's tokens. Every decision it makes is logged with the raw source data in a <a id="audit-link" href="#" target="_blank" rel="noopener">public audit log</a>. If it ever goes silent, anyone can cancel a game three days after face-off and everyone gets their stake back.</p>
+        <p class="contracts" id="contracts"></p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p>Educational project on a test network. MATCH has no monetary value and cannot be bought or sold. Match data: <a href="https://www.thesportsdb.com" target="_blank" rel="noopener">TheSportsDB</a>. Source code on <a id="repo-link" href="#" target="_blank" rel="noopener">GitHub</a>.</p>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

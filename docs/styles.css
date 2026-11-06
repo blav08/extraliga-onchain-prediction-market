@@ -1,0 +1,224 @@
+/* Extraliga Prediction Market. Visual language: an ice rink.
+   Rink markings are not decoration: the red line splits home from away,
+   blue lines frame the zones, the centre circle holds the game clock. */
+
+:root {
+  --ice: #EEF3F6;        /* page background */
+  --board: #FFFFFF;      /* rink surface */
+  --edge: #C9D3DC;       /* dasher boards */
+  --blue: #1F4FA3;       /* blue lines, home side */
+  --red: #C8102E;        /* red line, goal lines, away side */
+  --puck: #23262B;       /* text and primary buttons */
+  --mute: #5E6A78;       /* secondary text, AA on white and ice */
+
+  --home-tint: rgba(31, 79, 163, .10);
+  --away-tint: rgba(200, 16, 46, .08);
+
+  --display: "Big Shoulders Display", "Arial Narrow", sans-serif;
+  --text: "Barlow", system-ui, sans-serif;
+
+  /* type scale, ratio 1.25 */
+  --s-1: .8rem; --s0: 1rem; --s1: 1.25rem; --s2: 1.563rem; --s3: 1.953rem; --s4: 2.441rem; --s5: 3.052rem;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--ice);
+  color: var(--puck);
+  font: 400 var(--s0)/1.55 var(--text);
+  font-variant-numeric: tabular-nums;
+}
+a { color: var(--blue); text-underline-offset: 2px; }
+:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; border-radius: 6px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
+
+/* ------------------------------------------------------------ header */
+.bar {
+  position: sticky; top: 0; z-index: 10;
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  padding: 12px clamp(16px, 4vw, 40px);
+  background: color-mix(in srgb, var(--ice) 88%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--edge);
+}
+.wordmark { display: flex; align-items: center; gap: 10px; color: var(--puck); text-decoration: none;
+  font: 800 var(--s1)/1 var(--display); letter-spacing: .01em; }
+.puck { width: 28px; height: 28px; fill: var(--puck); }
+.puck .puck-top { fill: #474B52; }
+.net { font-size: var(--s-1); color: var(--mute); border: 1px solid var(--edge); padding: 2px 10px; border-radius: 999px; background: var(--board); }
+.wallet { margin-left: auto; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: .95rem; }
+.wallet .bal { font: 800 var(--s1)/1 var(--display); }
+.wallet .bal small { font: 500 .85rem var(--text); color: var(--mute); margin-left: 3px; }
+.wallet .addr { color: var(--mute); font-size: .9rem; }
+.wallet .hint { color: var(--mute); font-size: .9rem; }
+
+/* ------------------------------------------------------------ buttons */
+button { font: inherit; cursor: pointer; }
+.btn {
+  border: 0; border-radius: 8px; padding: 9px 16px; font-weight: 600;
+  background: var(--puck); color: #fff; min-height: 40px;
+}
+.btn:hover { background: #000; }
+
+.btn.ghost { background: transparent; color: var(--puck); box-shadow: inset 0 0 0 1.5px var(--edge); }
+.btn.ghost:hover { box-shadow: inset 0 0 0 1.5px var(--puck); }
+.btn.home { background: var(--blue); }
+.btn.away { background: var(--red); }
+.btn:disabled, .btn.home:disabled, .btn.away:disabled { background: var(--edge); color: var(--mute); cursor: not-allowed; }
+.estimate .warn { color: var(--red); font-weight: 600; }
+
+/* ------------------------------------------------------------ layout */
+main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px) 64px; }
+.intro { padding: clamp(40px, 8vw, 88px) 0 clamp(28px, 4vw, 40px); max-width: 44rem; }
+.intro h1 { font: 800 clamp(var(--s4), 7vw, 4.6rem)/.95 var(--display); margin: 0 0 18px; letter-spacing: -.005em; }
+.intro p { margin: 0; font-size: var(--s1); line-height: 1.5; color: #3B414A; max-width: 38rem; }
+h2 { font: 800 var(--s3)/1.1 var(--display); margin: 48px 0 18px; }
+h3 { font: 800 var(--s2)/1.1 var(--display); margin: 0 0 10px; }
+.empty { color: var(--mute); padding: 28px; background: var(--board); border: 1.5px dashed var(--edge); border-radius: 40px; text-align: center; }
+.notice { margin: 0 0 8px; padding: 12px 16px; background: var(--board); border-left: 4px solid var(--red); border-radius: 6px; }
+.notice:empty { display: none; }
+.rinks { display: grid; gap: 28px; }
+.rinks.compact { gap: 18px; }
+
+/* ------------------------------------------------------------ the rink */
+.game { display: grid; gap: 12px; }
+.rink {
+  --r: 64px;                      /* corner radius: a rink has rounded corners */
+  position: relative;
+  display: grid; grid-template-columns: 1fr 1fr;
+  min-height: 220px;
+  background:
+    /* blue lines at the zone boundaries */
+    linear-gradient(90deg, transparent calc(36% - 4px), var(--blue) calc(36% - 4px), var(--blue) calc(36% + 4px), transparent calc(36% + 4px),
+                           transparent calc(64% - 4px), var(--blue) calc(64% - 4px), var(--blue) calc(64% + 4px), transparent calc(64% + 4px)),
+    /* goal lines */
+    linear-gradient(90deg, transparent 6%, var(--red) 6%, var(--red) calc(6% + 2px), transparent calc(6% + 2px),
+                           transparent calc(94% - 2px), var(--red) calc(94% - 2px), var(--red) 94%, transparent 94%),
+    var(--board);
+  border: 4px solid var(--edge);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+.rink::before { /* red centre line */
+  content: ""; position: absolute; top: 0; bottom: 0; left: calc(50% - 4px); width: 8px;
+  background: var(--red); z-index: 1; pointer-events: none;
+}
+.compact .rink { --r: 44px; min-height: 140px; }
+
+.zone {
+  position: relative; display: flex; flex-direction: column; justify-content: center; gap: 6px;
+  border: 0; background: transparent; color: inherit; text-align: left;
+  /* goal line sits at 12 % of the zone, blue line at 72 %: content stays between them */
+  padding: 26px calc(28% + 16px) 26px calc(12% + 18px);
+  font: inherit;
+}
+.zone.away { text-align: right; align-items: flex-end; padding: 26px calc(12% + 18px) 26px calc(28% + 16px); }
+button.zone:hover .team { text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 6px; }
+div.zone { cursor: default; }
+.zone > * { position: relative; z-index: 2; }
+
+/* pool share fills the zone from the red line outwards */
+.zone .fill {
+  position: absolute; z-index: 0; top: 0; bottom: 0; width: var(--share, 0%);
+  transition: width .6s cubic-bezier(.2, .7, .2, 1);
+}
+.zone.home .fill { right: 0; background: var(--home-tint); }
+.zone.away .fill { left: 0; background: var(--away-tint); }
+
+.zone[aria-pressed="true"].home { box-shadow: inset 0 0 0 4px var(--blue); }
+.zone[aria-pressed="true"].away { box-shadow: inset 0 0 0 4px var(--red); }
+.zone.lost { opacity: .45; }
+
+.crest { width: 52px; height: 52px; object-fit: contain; }
+.crest.mono { display: grid; place-items: center; border-radius: 50%; background: var(--ice); font: 800 var(--s1)/1 var(--display); color: var(--mute); }
+.team { font: 800 clamp(1.45rem, 2.7vw, 2.2rem)/.95 var(--display); text-wrap: balance; overflow-wrap: anywhere; }
+.compact .team { font-size: clamp(1.25rem, 2.2vw, var(--s2)); }
+.side { font-size: .85rem; color: var(--mute); }
+.pool { font-size: .95rem; }
+.pool b { font: 800 var(--s1)/1 var(--display); }
+.mult { font-size: .95rem; color: #3B414A; }
+.mine { font-size: .9rem; font-weight: 600; }
+.home .mine { color: var(--blue); }
+.away .mine { color: var(--red); }
+.flag { font: 800 var(--s0)/1 var(--display); padding: 3px 10px; border-radius: 999px; color: #fff; width: fit-content; }
+.home .flag { background: var(--blue); }
+.away .flag { background: var(--red); }
+
+/* centre circle: clock before the game, score after */
+.circle {
+  position: absolute; z-index: 3; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: 150px; height: 150px; border-radius: 50%;
+  border: 4px solid var(--blue); background: var(--board);
+  display: grid; place-content: center; text-align: center; gap: 2px;
+  pointer-events: none;
+}
+.compact .circle { width: 112px; height: 112px; }
+.circle .big { font: 800 var(--s3)/1 var(--display); }
+.compact .circle .big { font-size: var(--s2); }
+.circle .small { font-size: .8rem; color: var(--mute); line-height: 1.25; }
+
+.meta { display: flex; flex-wrap: wrap; gap: 6px 18px; color: var(--mute); font-size: .9rem; padding: 0 12px; }
+
+/* ------------------------------------------------------------ bet ticket */
+.ticket {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px 18px;
+  background: var(--board); border: 1.5px solid var(--edge); border-radius: 18px; padding: 14px 18px;
+}
+.ticket[hidden] { display: none; }
+.ticket label { font-weight: 600; }
+.amount { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.amount input {
+  width: 8.5rem; padding: 8px 10px; border: 1.5px solid var(--edge); border-radius: 8px;
+  font: 800 var(--s1)/1 var(--display); background: var(--ice);
+}
+.chip { border: 1.5px solid var(--edge); background: var(--board); border-radius: 999px; padding: 4px 12px; font-size: .9rem; }
+.chip:hover { border-color: var(--puck); }
+.estimate { grid-column: 1 / -1; margin: 0; color: #3B414A; }
+.estimate b { color: var(--puck); }
+
+.claim { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  background: var(--board); border: 1.5px solid var(--edge); border-radius: 18px; padding: 12px 18px; }
+
+/* ------------------------------------------------------------ how it works */
+.how { margin-top: 24px; }
+.steps { padding-left: 1.4rem; max-width: 46rem; display: grid; gap: 12px; }
+.steps li::marker { font: 800 var(--s1) var(--display); color: var(--red); }
+.trust { margin-top: 28px; padding: 22px 24px; background: var(--board); border-radius: 18px; border: 1.5px solid var(--edge); max-width: 46rem; }
+.trust p { margin: 0 0 10px; }
+.contracts { font-size: .9rem; color: var(--mute); }
+
+.foot { max-width: 1080px; margin: 0 auto; padding: 24px clamp(16px, 4vw, 40px) 48px; color: var(--mute); font-size: .9rem; border-top: 1px solid var(--edge); }
+
+/* ------------------------------------------------------------ toast */
+.toast {
+  position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); z-index: 20;
+  max-width: min(92vw, 560px); padding: 12px 18px; border-radius: 10px;
+  background: var(--puck); color: #fff; box-shadow: 0 8px 30px rgba(35, 38, 43, .25);
+}
+.toast a { color: #BFD2FF; }
+.toast.err { background: var(--red); }
+.toast.err a { color: #fff; }
+
+/* ------------------------------------------------------------ narrow screens: the rink turns vertical */
+@media (max-width: 900px) and (min-width: 641px) {
+  .circle { width: 120px; height: 120px; }
+  .compact .circle { width: 96px; height: 96px; }
+}
+@media (max-width: 640px) {
+  /* Vertical rink: too short for content between blue lines, so only the red line and circle stay */
+  .rink { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; min-height: 400px; background: var(--board); }
+  .crest { width: 40px; height: 40px; }
+  .rink::before { top: calc(50% - 4px); bottom: auto; left: 0; right: 0; width: auto; height: 8px; }
+  .compact .rink { min-height: 300px; }
+  .zone, .zone.away { align-items: center; text-align: center; padding: 22px 18px 84px; }
+  .zone.away { padding: 84px 18px 22px; }
+  .zone.home .fill, .zone.away .fill { left: 0; right: 0; width: auto; height: var(--share, 0%); top: auto; }
+  .zone.home .fill { bottom: 0; }
+  .zone.away .fill { top: 0; bottom: auto; }
+  .circle { width: 116px; height: 116px; }
+  .compact .circle { width: 96px; height: 96px; }
+  .ticket { grid-template-columns: 1fr; }
+  .wallet { margin-left: 0; width: 100%; }
+}

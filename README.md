@@ -9,6 +9,8 @@ sync with the real world. Runs on **Sepolia testnet only**.
 > on an exchange: real-money betting requires a gambling licence (in Czechia under
 > Act No. 186/2016 Coll.).
 
+**Live app: https://blav08.github.io/extraliga-onchain-prediction-market/**
+
 ## Deployed contracts (Sepolia)
 
 | Contract | Address |
@@ -29,6 +31,8 @@ flowchart LR
     O -->|createMatch / settle / cancel| P[BettingPool]
     U((users)) -->|placeBet / claim| P
     F[MatchFaucet] -->|free test MATCH| U
+    B -.->|teams, scores| W[web app<br/>GitHub Pages]
+    P -.->|live pools, stakes| W
     P -->|2 % fee burned| T[MatchToken]
 ```
 
@@ -115,6 +119,22 @@ Offline demo without an API key: `SOURCE=file:tests/fixtures/sample_games.json`.
 Note: GitHub disables scheduled workflows after 60 days without repository
 activity. The oracle's own commits to `data/` count as activity.
 
+## Web app (`docs/`)
+
+A static page served by GitHub Pages, plain JavaScript + ethers v6, no build step.
+
+- Every game is drawn as a rink: home end on the left, away end on the right, the red
+  line between them. A team's pool share fills its half from the red line outwards and
+  the centre circle shows the countdown, or the final score.
+- **The chain is the source of truth.** `board.json` (from the oracle) only supplies team
+  names, crests and scores; pools, stakes, results and claimable amounts are read live
+  from the contracts.
+- **One-transaction bets:** the user signs an EIP-2612 permit (free) and
+  `placeBetWithPermit` uses it, so there is no separate `approve` transaction.
+- The payout preview uses the contract's own formula, including the 2 % burn.
+- Third-party data is rendered as text only (no `innerHTML`), and contract addresses
+  cannot be overridden from the URL, so a crafted link cannot point a wallet elsewhere.
+
 ## Tests
 
 ```bash
@@ -127,6 +147,15 @@ python -m pytest -q
 - `test_e2e_localchain.py`: the real oracle drives the real contracts on an
   in-memory EVM through a full matchday (create → bets → postponement →
   shootout → settlement with burn → refunds → board + audit log)
+
+- `tests/frontend/`: the real page driven by headless Chrome against the real contracts on a
+  local node with Sepolia's chain id: connect, faucet, permit bet, collect winnings and
+  refund, over-balance guard, and an XSS probe in a team name.
+  ```bash
+  cd tests/frontend && npm i hardhat@2 && npx hardhat node        # terminal 1
+  python tests/frontend/setup_chain.py                             # terminal 2
+  python -m http.server 8765 -d docs &  python tests/frontend/ui_flow.py
+  ```
 
 Contracts: `contracts/`. Recompile with `node scripts/compile.js`
 (needs `npm i solc@0.8.24 @openzeppelin/contracts@5`).
