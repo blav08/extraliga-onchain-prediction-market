@@ -33,13 +33,15 @@ jobs:
       - run: pip install -r requirements.txt
 
       - name: Unit tests (refuse to run a broken oracle)
-        run: python -m pytest -q tests/test_planner.py tests/test_sources.py
+        run: python -m pytest -q tests/test_planner.py tests/test_sources.py tests/test_thesportsdb.py
 
       - name: Reconcile chain with match data
         env:
           RPC_URL: ${{ secrets.RPC_URL }}
           POOL_ADDRESS: ${{ vars.POOL_ADDRESS }}
           ORACLE_PRIVATE_KEY: ${{ secrets.ORACLE_PRIVATE_KEY }}
+          SOURCE: ${{ vars.SOURCE || 'thesportsdb' }}
+          THESPORTSDB_KEY: ${{ secrets.THESPORTSDB_KEY || '123' }}
           APISPORTS_KEY: ${{ secrets.APISPORTS_KEY }}
           LEAGUE_ID: ${{ vars.LEAGUE_ID }}
           SEASON: ${{ vars.SEASON }}

@@ -1,0 +1,66 @@
+{
+ "meta": {
+  "generated_at_chain_ts": 1793988696,
+  "pool": "0x684C429c009088b2Ed69410d8e974aec5b4fa7Af",
+  "chain_id": 11155111
+ },
+ "matches": [
+  {
+   "provider": "thesportsdb",
+   "fixture_id": 2480732,
+   "start_ts": 1794585600,
+   "status_code": "NS",
+   "phase": "scheduled",
+   "home": "Oceláři Třinec",
+   "away": "Bílí Tygři Liberec",
+   "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/opiwnh1687415430.png",
+   "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/mo3fgn1782978468.png",
+   "score_home": null,
+   "score_away": null,
+   "shootout": null,
+   "match_id": "0x7445c9e50520cc34ad9a5e871d7fdcd450ab836e7ebf1aa22f73da1b396169f2",
+   "chain_status": "OPEN",
+   "betting_closes": 1794585600,
+   "pool_home": "0",
+   "pool_away": "0"
+  },
+  {
+   "provider": "thesportsdb",
+   "fixture_id": 2480733,
+   "start_ts": 1794587400,
+   "status_code": "NS",
+   "phase": "scheduled",
+   "home": "Litvinov",
+   "away": "Motor České Budějovice",
+   "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/ptf67p1630268389.png",
+   "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/f8724n1630268254.png",
+   "score_home": null,
+   "score_away": null,
+   "shootout": null,
+   "match_id": "0xa9be2cd9e283fa689f417e837ebe89f425424c490566be64c801b6ed102ec012",
+   "chain_status": "OPEN",
+   "betting_closes": 1794587400,
+   "pool_home": "0",
+   "pool_away": "0"
+  },
+  {
+   "provider": "thesportsdb",
+   "fixture_id": 2480734,
+   "start_ts": 1794587400,
+   "status_code": "NS",
+   "phase": "scheduled",
+   "home": "Mladá Boleslav",
+   "away": "Vitkovice",
+   "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/30tpzi1630268998.png",
+   "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/i49zns1630268287.png",
+   "score_home": null,
+   "score_away": null,
+   "shootout": null,
+   "match_id": "0xfc91265d11f910688c6a896d0888f2f4e5fb704a8edf540829b738fb856d76fd",
+   "chain_status": "OPEN",
+   "betting_closes": 1794587400,
+   "pool_home": "0",
+   "pool_away": "0"
+  }
+ ]
+}

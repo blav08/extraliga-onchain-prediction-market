@@ -21,7 +21,7 @@ from web3 import Web3
 from .chain import PoolClient
 from .planner import Policy
 from .runner import LOOKBACK_S, reconcile
-from .sources import ApiSportsSource, FileSource
+from .sources import ApiSportsSource, FileSource, TheSportsDBSource
 
 log = logging.getLogger("oracle")
 ROOT = Path(__file__).resolve().parent.parent
@@ -47,16 +47,35 @@ def load_dotenv(path: Path = ROOT / ".env") -> None:
 
 
 def make_source():
-    # SOURCE=file:path.json lets you demo or test without spending API quota
-    spec = os.environ.get("SOURCE", "apisports")
+    """
+    SOURCE=thesportsdb  (default) free, current season, max 3 games/day on the free key
+    SOURCE=apisports    full schedule, current season needs a paid plan
+    SOURCE=file:x.json  offline demo / tests, no network
+    """
+    spec = os.environ.get("SOURCE") or "thesportsdb"
     if spec.startswith("file:"):
         return FileSource(spec.removeprefix("file:"))
-    return ApiSportsSource(env("APISPORTS_KEY"), int(env("LEAGUE_ID")), int(env("SEASON")))
+    if spec == "apisports":
+        return ApiSportsSource(env("APISPORTS_KEY"), int(env("LEAGUE_ID")), int(env("SEASON")))
+    return TheSportsDBSource(env("THESPORTSDB_KEY", "123", required=False),
+                             int(env("THESPORTSDB_LEAGUE", "4923", required=False)))
+
+
+def run_with(source, pool, dry, max_tx):
+    lookup = getattr(source, "lookup", None)
+    provider = {TheSportsDBSource: "thesportsdb", ApiSportsSource: "apisports-hockey"}.get(type(source))
+    return reconcile(pool, source.fixtures(), ROOT / "data", dry_run=dry, max_tx=max_tx,
+                     lookup=lookup, provider=provider)
 
 
 def make_pool(need_key: bool) -> PoolClient:
     w3 = Web3(Web3.HTTPProvider(env("RPC_URL"), request_kwargs={"timeout": 30}))
-    key = env("ORACLE_PRIVATE_KEY", required=need_key)
+    key = env("ORACLE_PRIVATE_KEY", required=False)
+    hexpart = (key or "").removeprefix("0x")
+    if len(hexpart) != 64 or any(c not in "0123456789abcdefABCDEF" for c in hexpart):
+        if need_key:
+            sys.exit("ORACLE_PRIVATE_KEY is missing or not a 64-hex-char key (still the placeholder?)")
+        key = None  # dry runs and status never sign anything
     return PoolClient(w3, env("POOL_ADDRESS"), key,
                       max_fee_gwei=float(env("MAX_FEE_GWEI", "50", required=False)))
 
@@ -70,8 +89,7 @@ def cmd_run(args) -> int:
             return 2
         if pool.eth_balance() < LOW_BALANCE_ETH:
             log.warning("oracle balance low: %.4f ETH, top it up", pool.eth_balance())
-    rep = reconcile(pool, make_source().fixtures(), ROOT / "data", dry_run=dry,
-                    max_tx=int(env("MAX_TX_PER_RUN", "25", required=False)))
+    rep = run_with(make_source(), pool, dry, int(env("MAX_TX_PER_RUN", "25", required=False)))
     log.info("done: %s", rep)
     return 1 if rep.failures else 0  # red CI run when a tx failed
 

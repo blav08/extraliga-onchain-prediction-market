@@ -1,4 +1,4 @@
-# MATCH: on-chain prediction game for the Czech Extraliga
+# Hockey Prediction Market on Ethereum (Czech Extraliga)
 
 A token-engineering project: an ERC-20 token (**MATCH**), a parimutuel prediction
 pool on real ice-hockey matches, and an autonomous oracle that keeps the chain in
@@ -21,7 +21,7 @@ sync with the real world. Runs on **Sepolia testnet only**.
 
 ```mermaid
 flowchart LR
-    API[(API-Sports<br/>Extraliga data)] -->|fixtures + results| O
+    API[(TheSportsDB / API-Sports<br/>Extraliga data)] -->|fixtures + results| O
     subgraph GH[GitHub Actions, every 30 min]
       O[oracle<br/>reconcile] --> L[data/oracle-log.jsonl<br/>audit log in git]
       O --> B[data/board.json<br/>frontend snapshot]
@@ -31,6 +31,21 @@ flowchart LR
     F[MatchFaucet] -->|free test MATCH| U
     P -->|2 % fee burned| T[MatchToken]
 ```
+
+## Data sources
+
+The oracle talks to providers only through a `Source` interface (`oracle/sources.py`),
+so the provider is a config switch, not a code change.
+
+| `SOURCE` | Cost | Coverage (checked 2026-11-06) |
+|---|---|---|
+| `thesportsdb` (default) | free, key `123` | current season, **max 3 games per matchday**; results re-checked per game via `lookupevent` |
+| `thesportsdb` + premium key | $9 / month | full schedule, same code |
+| `apisports` | paid | full schedule; free plan only serves seasons 2022–2024 |
+| `file:path.json` | free | offline demo and tests |
+
+Because free schedules are partial, every market the oracle has opened is re-checked
+individually; the list of open markets is rebuilt from the oracle's own audit log.
 
 ## The oracle: design decisions
 
@@ -82,8 +97,7 @@ Anyone can recompute the on-chain ID from a public fixture ID; no lookup table.
 
 ```bash
 pip install -r requirements.txt
-cp .env.example .env              # fill in RPC_URL, keys, LEAGUE_ID, SEASON
-python -m oracle leagues extraliga   # find LEAGUE_ID once
+cp .env.example .env              # fill in ORACLE_PRIVATE_KEY (rest has working defaults)
 python -m oracle run --dry-run       # see what it would do, sends nothing
 python -m oracle run                 # do it
 python -m oracle status              # chain state of nearby fixtures
@@ -94,8 +108,8 @@ Offline demo without an API key: `SOURCE=file:tests/fixtures/sample_games.json`.
 ### GitHub Actions setup
 
 1. **Secrets** (Settings → Secrets and variables → Actions → *Secrets*):
-   `ORACLE_PRIVATE_KEY`, `APISPORTS_KEY`, `RPC_URL`
-2. **Variables** (same page → *Variables*): `POOL_ADDRESS`, `LEAGUE_ID`, `SEASON`
+   `ORACLE_PRIVATE_KEY`, `RPC_URL` (optional: `THESPORTSDB_KEY`, `APISPORTS_KEY`)
+2. **Variables** (same page → *Variables*): `POOL_ADDRESS` (optional: `SOURCE`, `LEAGUE_ID`, `SEASON`)
 3. Actions tab → *oracle* → **Run workflow** with `dry_run` ticked first.
 
 Note: GitHub disables scheduled workflows after 60 days without repository
@@ -108,6 +122,7 @@ python -m pytest -q
 ```
 
 - `test_sources.py`: status mapping, winner logic incl. OT/shootout edge cases
+- `test_thesportsdb.py`: TheSportsDB field shapes, postponement flag, audit-log recovery
 - `test_planner.py`: every rule in the table above, idempotency, action ordering
 - `test_e2e_localchain.py`: the real oracle drives the real contracts on an
   in-memory EVM through a full matchday (create → bets → postponement →
