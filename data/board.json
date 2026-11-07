@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generated_at_chain_ts": 1794051216,
+  "generated_at_chain_ts": 1794053040,
   "pool": "0x684C429c009088b2Ed69410d8e974aec5b4fa7Af",
   "chain_id": 11155111
  },
@@ -41,7 +41,7 @@
    "chain_status": "OPEN",
    "betting_closes": 1794587400,
    "pool_home": "0",
-   "pool_away": "0"
+   "pool_away": "25000000000000000000"
   },
   {
    "provider": "thesportsdb",
