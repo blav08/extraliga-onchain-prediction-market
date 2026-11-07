@@ -48,6 +48,12 @@ jobs:
           DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
         run: python -m oracle run
 
+      # Independent check: recompute every payout from on-chain events and compare
+      # with what the contract pays. A red step here means the numbers do not add up.
+      - name: Audit payouts
+        if: always()
+        run: python scripts/verify_payouts.py
+
       - name: Publish board + audit log
         if: always()
         run: |

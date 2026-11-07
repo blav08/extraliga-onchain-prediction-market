@@ -163,5 +163,14 @@ python -m pytest -q
   python -m http.server 8765 -d docs &  python tests/frontend/ui_flow.py
   ```
 
+### Payout audit
+
+`python scripts/verify_payouts.py` rebuilds every bet from on-chain events (full history
+from Blockscout; public RPC nodes keep only ~1.5 days of logs), recomputes each payout with
+its own arithmetic and compares it with what the contract pays or already paid. It also
+checks that the 2 % fee was really burned (a `Transfer` to the zero address in the settle
+transaction) and prints a what-if table for open games. It runs after every oracle pass
+in CI. Read-only, no keys needed.
+
 Contracts: `contracts/`. Recompile with `node scripts/compile.js`
 (needs `npm i solc@0.8.24 @openzeppelin/contracts@5`).
