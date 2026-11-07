@@ -31,6 +31,8 @@ const POOL_ABI = [
   "function stakesOf(bytes32, address) view returns (uint256 home, uint256 away)",
   "function claimable(bytes32, address) view returns (uint256)",
   "function feeBps() view returns (uint16)",
+  "function ORACLE_ROLE() view returns (bytes32)",
+  "function hasRole(bytes32, address) view returns (bool)",
   "function placeBetWithPermit(bytes32 matchId, uint8 side, uint256 amount, uint256 deadline, uint8 v, bytes32 r, bytes32 s)",
   "function claim(bytes32 matchId)",
   "error MatchNotOpen()", "error BettingClosed()", "error BetTooSmall()",
@@ -71,6 +73,7 @@ const state = {
   board: [], chain: new Map(), mine: new Map(), feeBps: 200n,
   account: null, chainOk: false, balance: 0n, eth: 0n, nextDrip: 0,
   connecting: false,
+  isOracle: false,           // connected account holds ORACLE_ROLE -> must not bet
   pick: new Map(),           // matchId -> 0 | 1, the side the user is staking on
   amount: new Map(),         // matchId -> typed stake, survives re-renders
   busy: false,
@@ -180,11 +183,12 @@ async function loadMine() {
   if (!state.account) return;
   const a = state.account;
   const ids = state.board.map((m) => m.match_id);
-  const [bal, eth, last, ...per] = await Promise.all([
+  const [bal, eth, last, isOracle, ...per] = await Promise.all([
     rToken.balanceOf(a), read.getBalance(a), rFaucet.lastClaim(a),
+    rPool.ORACLE_ROLE().then((role) => rPool.hasRole(role, a)),
     ...ids.flatMap((id) => [rPool.stakesOf(id, a), rPool.claimable(id, a)]),
   ]);
-  state.balance = bal; state.eth = eth;
+  state.balance = bal; state.eth = eth; state.isOracle = isOracle;
   state.nextDrip = Number(last) === 0 ? 0 : Number(last) + 86400;
   ids.forEach((id, i) => {
     const st = per[2 * i], cl = per[2 * i + 1];
@@ -370,6 +374,13 @@ function renderWallet() {
       el("button", { class: "btn", onclick: switchChain }, "Switch to Sepolia"));
     return;
   }
+  if (state.isOracle) {
+    // The account that settles games must never hold a stake in them
+    w.replaceChildren(
+      el("span", { class: "hint warn" }, "This is the oracle account. It settles games, so it must not bet. Switch to another account in MetaMask."),
+      el("a", { class: "addr", href: `${CONFIG.explorer}/address/${state.account}`, target: "_blank", rel: "noopener" }, short(state.account)));
+    return;
+  }
   const now = Date.now() / 1000;
   const dripBtn = state.nextDrip > now
     ? el("span", { class: "hint" }, `Next free tokens in ${until(state.nextDrip)}`)
@@ -412,7 +423,11 @@ function zone(m, c, side, { interactive, outcome }) {
     pools[side] > 0n
       ? el("span", { class: "pool" }, el("b", {}, fmt(pools[side])), " MATCH backed", ` (${share} %)`)
       : el("span", { class: "pool" }, c.status === "OPEN" ? "No stakes yet" : "No stakes"),
-    mult && c.status === "OPEN" ? el("span", { class: "mult" }, `Pays ×${mult.toFixed(2)} right now`) : null,
+    mult && c.status === "OPEN"
+      ? el("span", { class: "mult" }, pools[1 - side] === 0n
+          ? `Only side backed: ×${mult.toFixed(2)} if they win, full refund if they lose`
+          : `Pays ×${mult.toFixed(2)} right now`)
+      : null,
     myStake > 0n ? el("span", { class: "mine" }, `Your stake: ${fmt(myStake)} MATCH`) : null,
     outcome === "won" ? el("span", { class: "flag" }, "Won") : null,
   ];
@@ -462,8 +477,8 @@ function ticket(m, c) {
       "If ", el("b", {}, team), " win and the pool stays as it is, you get ",
       el("b", {}, `${fmt(gain)} MATCH`), ` back for ${fmt(amt)} staked. The odds move as other people bet.`);
     go.textContent = `Bet ${fmt(amt)} MATCH on ${team}`;
-    go.disabled = state.busy || !state.account || !state.chainOk || tooLow || tooHigh;
-    go.title = !state.account ? "Connect MetaMask first" : tooHigh ? "More than your MATCH balance" : tooLow ? "Minimum 1 MATCH" : "";
+    go.disabled = state.busy || !state.account || !state.chainOk || tooLow || tooHigh || state.isOracle;
+    go.title = state.isOracle ? "The oracle account cannot bet" : !state.account ? "Connect MetaMask first" : tooHigh ? "More than your MATCH balance" : tooLow ? "Minimum 1 MATCH" : "";
   };
   input.addEventListener("input", update);
   go.addEventListener("click", () => {

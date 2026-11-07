@@ -53,6 +53,7 @@ a { color: var(--blue); text-underline-offset: 2px; }
 .wallet .bal small { font: 500 .85rem var(--text); color: var(--mute); margin-left: 3px; }
 .wallet .addr { color: var(--mute); font-size: .9rem; }
 .wallet .hint { color: var(--mute); font-size: .9rem; }
+.wallet .warn { color: var(--red); font-weight: 600; max-width: 34rem; }
 
 /* ------------------------------------------------------------ buttons */
 button { font: inherit; cursor: pointer; }
