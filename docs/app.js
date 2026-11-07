@@ -70,6 +70,7 @@ const ONE = 10n ** 18n;
 const state = {
   board: [], chain: new Map(), mine: new Map(), feeBps: 200n,
   account: null, chainOk: false, balance: 0n, eth: 0n, nextDrip: 0,
+  connecting: false,
   pick: new Map(),           // matchId -> 0 | 1, the side the user is staking on
   amount: new Map(),         // matchId -> typed stake, survives re-renders
   busy: false,
@@ -120,9 +121,9 @@ function until(ts) {
 function short(a) { return `${a.slice(0, 6)}…${a.slice(-4)}`; }
 
 let toastTimer;
-function toast(msg, { err = false, link = null, sticky = false } = {}) {
+function toast(msg, { err = false, link = null, linkText = "View transaction", sticky = false } = {}) {
   const t = $("#toast");
-  t.replaceChildren(msg, link ? el("span", {}, " ", el("a", { href: link, target: "_blank", rel: "noopener" }, "View transaction")) : "");
+  t.replaceChildren(msg, link ? el("span", {}, " ", el("a", { href: link, target: "_blank", rel: "noopener" }, linkText)) : "");
   t.className = "toast" + (err ? " err" : "");
   t.hidden = false;
   clearTimeout(toastTimer);
@@ -130,7 +131,11 @@ function toast(msg, { err = false, link = null, sticky = false } = {}) {
 }
 
 function explain(e) {
-  if (e?.code === "ACTION_REJECTED" || e?.info?.error?.code === 4001) return "You cancelled the request in MetaMask.";
+  const code = e?.code ?? e?.info?.error?.code ?? e?.error?.code;
+  if (code === "ACTION_REJECTED" || code === 4001) return "You cancelled the request in MetaMask.";
+  // -32002: a request is already waiting in MetaMask; a second popup will not open
+  if (code === -32002) return "MetaMask already has a request waiting. Click the fox icon in your browser toolbar and approve or reject it there.";
+  if (code === 4100) return "MetaMask is locked or this site is not connected. Unlock MetaMask and click Connect again.";
   const data = e?.data ?? e?.info?.error?.data ?? e?.error?.data;
   let name = e?.revert?.name;
   if (!name && typeof data === "string") { try { name = errIface.parseError(data)?.name; } catch { /* unknown */ } }
@@ -202,45 +207,88 @@ async function refresh() {
 }
 
 // ------------------------------------------------------------------ wallet
-function walletProvider() { return window.ethereum ? new ethers.BrowserProvider(window.ethereum) : null; }
+/*
+ * Finding MetaMask. With several wallet extensions installed (Phantom, Coinbase,
+ * Brave Wallet...) they fight over window.ethereum and the page may get the wrong one.
+ * EIP-6963 fixes that: each wallet announces itself with an id ("rdns"), so we can
+ * pick MetaMask explicitly. window.ethereum stays as a fallback for older wallets.
+ */
+const announced = new Map();     // rdns -> { info, provider }
+window.addEventListener("eip6963:announceProvider", (e) => {
+  if (e.detail?.info?.rdns && e.detail.provider) announced.set(e.detail.info.rdns, e.detail);
+});
+window.dispatchEvent(new Event("eip6963:requestProvider"));
+
+let eth = null;                  // the EIP-1193 provider we talk to
+function pickWallet() {
+  const mm = announced.get("io.metamask") || announced.get("io.metamask.flask");
+  if (mm) return mm.provider;
+  if (announced.size) return [...announced.values()][0].provider;
+  const injected = window.ethereum;
+  if (injected?.providers?.length) return injected.providers.find((p) => p.isMetaMask) || injected.providers[0];
+  return injected || null;
+}
+const isMobile = () => /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+const metamaskDeepLink = () => `https://metamask.app.link/dapp/${location.host}${location.pathname}`;
+
+function walletProvider() { return eth ? new ethers.BrowserProvider(eth) : null; }
 
 async function connect() {
-  if (!window.ethereum) {
-    toast("MetaMask is not installed in this browser. Install it from metamask.io and reload the page.", { err: true });
+  eth = eth || pickWallet();
+  if (!eth) {
+    if (isMobile()) {
+      toast("On a phone, open this page inside the MetaMask app.", { err: true, link: metamaskDeepLink(), linkText: "Open in MetaMask" });
+    } else {
+      toast("No wallet found in this browser. Install MetaMask from metamask.io, then reload the page.", { err: true });
+    }
     return;
   }
+  state.connecting = true; render();
+  // MetaMask does not always open a window by itself (locked wallet, an earlier request
+  // still open). Tell the user where to look instead of silently waiting.
+  toast("Approve the connection in MetaMask. No window? Click the fox icon in your browser toolbar.", { sticky: true });
   try {
-    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+    const accounts = await eth.request({ method: "eth_requestAccounts" });
+    if (!accounts?.length) throw new Error("MetaMask returned no account. Unlock it and try again.");
     state.account = ethers.getAddress(accounts[0]);
     await checkChain();
-    await loadMine();
-  } catch (e) { toast(explain(e), { err: true }); }
-  render();
+    $("#toast").hidden = true;
+    try { await loadMine(); } catch (e) { console.error("[EPM] loading balances failed", e); }
+  } catch (e) {
+    console.error("[EPM] connect failed", e);
+    toast(explain(e), { err: true });
+  } finally {
+    state.connecting = false;
+    render();
+  }
 }
 
 async function checkChain() {
-  const id = await window.ethereum.request({ method: "eth_chainId" });
+  const id = await eth.request({ method: "eth_chainId" });
   state.chainOk = parseInt(id, 16) === CONFIG.chainId;
 }
 
 async function switchChain() {
   try {
-    await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: CONFIG.chainHex }] });
+    await eth.request({ method: "wallet_switchEthereumChain", params: [{ chainId: CONFIG.chainHex }] });
   } catch (e) {
-    if (e.code === 4902) {   // Sepolia not added to this wallet yet
-      await window.ethereum.request({ method: "wallet_addEthereumChain", params: [{
-        chainId: CONFIG.chainHex, chainName: "Sepolia", rpcUrls: [CONFIG.rpc],
-        nativeCurrency: { name: "Sepolia ETH", symbol: "ETH", decimals: 18 }, blockExplorerUrls: [CONFIG.explorer],
-      }] });
+    if (e.code === 4902 || e?.data?.originalError?.code === 4902) {   // Sepolia not added to this wallet yet
+      try {
+        await eth.request({ method: "wallet_addEthereumChain", params: [{
+          chainId: CONFIG.chainHex, chainName: "Sepolia", rpcUrls: [CONFIG.rpc],
+          nativeCurrency: { name: "Sepolia ETH", symbol: "ETH", decimals: 18 }, blockExplorerUrls: [CONFIG.explorer],
+        }] });
+      } catch (e2) { toast(explain(e2), { err: true }); return; }
     } else { toast(explain(e), { err: true }); return; }
   }
   await checkChain();
+  try { await loadMine(); } catch { /* shown on next refresh */ }
   render();
 }
 
 async function addTokenToWallet() {
   try {
-    await window.ethereum.request({ method: "wallet_watchAsset", params: {
+    await eth.request({ method: "wallet_watchAsset", params: {
       type: "ERC20", options: { address: CONFIG.token, symbol: "MATCH", decimals: 18 },
     } });
   } catch (e) { toast(explain(e), { err: true }); }
@@ -308,7 +356,13 @@ async function claim(matchId) {
 function renderWallet() {
   const w = $("#wallet");
   if (!state.account) {
-    w.replaceChildren(el("button", { class: "btn", onclick: connect }, "Connect MetaMask"));
+    if (!eth && isMobile()) {
+      // Mobile browsers have no wallet extension: hand over to the MetaMask app's browser
+      w.replaceChildren(el("a", { class: "btn", href: metamaskDeepLink() }, "Open in MetaMask app"));
+      return;
+    }
+    w.replaceChildren(el("button", { class: "btn", type: "button", onclick: connect, disabled: state.connecting },
+      state.connecting ? "Waiting for MetaMask…" : "Connect MetaMask"));
     return;
   }
   if (!state.chainOk) {
@@ -499,14 +553,23 @@ function staticLinks() {
 
 async function boot() {
   staticLinks();
-  if (window.ethereum) {
+  // Wallets answer the EIP-6963 request asynchronously; give them a moment
+  await new Promise((r) => setTimeout(r, 300));
+  eth = pickWallet();
+  console.info("[EPM] wallets announced:", [...announced.keys()].join(", ") || "none",
+    "| window.ethereum:", window.ethereum ? (window.ethereum.isMetaMask ? "MetaMask" : "other") : "none");
+  if (eth) {
     // Reconnect silently if the site is already authorised, without a popup
     try {
-      const accounts = await window.ethereum.request({ method: "eth_accounts" });
+      const accounts = await eth.request({ method: "eth_accounts" });
       if (accounts.length) { state.account = ethers.getAddress(accounts[0]); await checkChain(); }
-    } catch { /* ignore */ }
-    window.ethereum.on?.("accountsChanged", async (a) => { state.account = a[0] ? ethers.getAddress(a[0]) : null; await loadMine(); render(); });
-    window.ethereum.on?.("chainChanged", async () => { await checkChain(); render(); });
+    } catch (e) { console.warn("[EPM] silent reconnect failed", e); }
+    eth.on?.("accountsChanged", async (a) => {
+      state.account = a[0] ? ethers.getAddress(a[0]) : null;
+      try { await loadMine(); } catch { /* next refresh */ }
+      render();
+    });
+    eth.on?.("chainChanged", async () => { await checkChain(); try { await loadMine(); } catch { /* next refresh */ } render(); });
   }
   render();
   await refresh();

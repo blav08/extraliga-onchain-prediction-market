@@ -61,6 +61,7 @@ button { font: inherit; cursor: pointer; }
   background: var(--puck); color: #fff; min-height: 40px;
 }
 .btn:hover { background: #000; }
+a.btn { display: inline-flex; align-items: center; text-decoration: none; }
 
 .btn.ghost { background: transparent; color: var(--puck); box-shadow: inset 0 0 0 1.5px var(--edge); }
 .btn.ghost:hover { box-shadow: inset 0 0 0 1.5px var(--puck); }
