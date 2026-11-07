@@ -33,13 +33,15 @@ const POOL_ABI = [
   "function feeBps() view returns (uint16)",
   "function ORACLE_ROLE() view returns (bytes32)",
   "function hasRole(bytes32, address) view returns (bool)",
-  "function placeBetWithPermit(bytes32 matchId, uint8 side, uint256 amount, uint256 deadline, uint8 v, bytes32 r, bytes32 s)",
+  "function placeBet(bytes32 matchId, uint8 side, uint256 amount)",
   "function claim(bytes32 matchId)",
   "error MatchNotOpen()", "error BettingClosed()", "error BetTooSmall()",
   "error NothingToClaim()", "error AlreadyClaimed()",
 ];
 const TOKEN_ABI = [
   "function balanceOf(address) view returns (uint256)",
+  "function allowance(address owner, address spender) view returns (uint256)",
+  "function approve(address spender, uint256 value) returns (bool)",
   "function nonces(address) view returns (uint256)",
   "function name() view returns (string)",
   "error ERC20InsufficientBalance(address sender, uint256 balance, uint256 needed)",
@@ -68,11 +70,15 @@ const ERROR_TEXT = {
 const STATUS = ["NONE", "OPEN", "SETTLED", "CANCELLED"];
 const HOME = 0, AWAY = 1;
 const ONE = 10n ** 18n;
+// One-time spending allowance for the pool. Deliberately not "unlimited": MetaMask
+// flags unlimited approvals, and 10,000 MATCH covers ~100 days of faucet drips.
+const APPROVE_CAP = 10_000n * ONE;
 
 const state = {
   board: [], chain: new Map(), mine: new Map(), feeBps: 200n,
   account: null, chainOk: false, balance: 0n, eth: 0n, nextDrip: 0,
   connecting: false,
+  allowance: 0n,             // how much MATCH the pool may pull from this wallet
   isOracle: false,           // connected account holds ORACLE_ROLE -> must not bet
   pick: new Map(),           // matchId -> 0 | 1, the side the user is staking on
   amount: new Map(),         // matchId -> typed stake, survives re-renders
@@ -183,12 +189,12 @@ async function loadMine() {
   if (!state.account) return;
   const a = state.account;
   const ids = state.board.map((m) => m.match_id);
-  const [bal, eth, last, isOracle, ...per] = await Promise.all([
-    rToken.balanceOf(a), read.getBalance(a), rFaucet.lastClaim(a),
+  const [bal, eth, last, allowance, isOracle, ...per] = await Promise.all([
+    rToken.balanceOf(a), read.getBalance(a), rFaucet.lastClaim(a), rToken.allowance(a, CONFIG.pool),
     rPool.ORACLE_ROLE().then((role) => rPool.hasRole(role, a)),
     ...ids.flatMap((id) => [rPool.stakesOf(id, a), rPool.claimable(id, a)]),
   ]);
-  state.balance = bal; state.eth = eth; state.isOracle = isOracle;
+  state.balance = bal; state.eth = eth; state.isOracle = isOracle; state.allowance = allowance;
   state.nextDrip = Number(last) === 0 ? 0 : Number(last) + 86400;
   ids.forEach((id, i) => {
     const st = per[2 * i], cl = per[2 * i + 1];
@@ -311,9 +317,11 @@ async function send(label, fn) {
     if (rc.status !== 1) throw new Error("Transaction failed on chain.");
     toast(`${label}: done.`, { link });
     await Promise.all([loadChain(), loadMine()]);
+    return true;
   } catch (e) {
     console.error(e);
     toast(explain(e), { err: true });
+    return false;
   } finally {
     state.busy = false; render();
   }
@@ -325,30 +333,41 @@ async function drip() {
 }
 
 /**
- * One-transaction bet: the user signs an EIP-2612 permit (free, off-chain), then
- * placeBetWithPermit uses it, so no separate approve transaction is needed.
+ * Betting = ERC-20 allowance + placeBet.
+ * The first bet asks for a one-time allowance (approve), later bets are a single
+ * transaction. We used EIP-2612 permit signatures before (one tx per bet), but wallet
+ * security layers treat off-chain Permit signatures as the classic wallet-drainer
+ * pattern, so every bet triggered several scary warnings. A plain approve to a
+ * verified contract is the pattern wallets trust. The contract still supports
+ * placeBetWithPermit for integrators.
  */
 async function bet(matchId, side, amount) {
   const signer = await walletProvider().getSigner();
   const owner = await signer.getAddress();
-  const [name, nonce] = await Promise.all([rToken.name(), rToken.nonces(owner)]);
-  const deadline = BigInt(Math.floor(Date.now() / 1000) + 3600);
-  const domain = { name, version: "1", chainId: CONFIG.chainId, verifyingContract: CONFIG.token };
-  const types = { Permit: [
-    { name: "owner", type: "address" }, { name: "spender", type: "address" },
-    { name: "value", type: "uint256" }, { name: "nonce", type: "uint256" }, { name: "deadline", type: "uint256" },
-  ] };
+  const token = new ethers.Contract(CONFIG.token, TOKEN_ABI, signer);
   const pool = new ethers.Contract(CONFIG.pool, POOL_ABI, signer);
-  await send("Bet", async () => {
-    toast("Sign the spending permit in MetaMask (free, no gas)…", { sticky: true });
-    const sig = ethers.Signature.from(await signer.signTypedData(domain, types,
-      { owner, spender: CONFIG.pool, value: amount, nonce, deadline }));
-    toast("Now confirm the bet transaction…", { sticky: true });
-    return pool.placeBetWithPermit(matchId, side, amount, deadline, sig.v, sig.r, sig.s);
+
+  if ((await rToken.allowance(owner, CONFIG.pool)) < amount) {
+    const ok = await send("Allow betting", () => {
+      toast("Step 1 of 2: allow the betting pool to use your MATCH (one time only)…", { sticky: true });
+      return token.approve(CONFIG.pool, amount > APPROVE_CAP ? amount : APPROVE_CAP);
+    });
+    if (!ok) return;
+    // MetaMask lets the user edit the spending cap; make sure it still covers this bet
+    if ((await rToken.allowance(owner, CONFIG.pool)) < amount) {
+      toast("The spending cap you set in MetaMask is lower than this bet. Bet less, or allow a higher cap.", { err: true });
+      return;
+    }
+  }
+  const ok = await send("Bet", () => {
+    toast("Confirm the bet in MetaMask…", { sticky: true });
+    return pool.placeBet(matchId, side, amount);
   });
-  state.pick.delete(matchId);
-  state.amount.delete(matchId);
-  render();
+  if (ok) {
+    state.pick.delete(matchId);
+    state.amount.delete(matchId);
+    render();
+  }
 }
 
 async function claim(matchId) {
@@ -476,6 +495,9 @@ function ticket(m, c) {
       tooLow ? el("span", { class: "warn" }, "The minimum stake is 1 MATCH. ") : "",
       "If ", el("b", {}, team), " win and the pool stays as it is, you get ",
       el("b", {}, `${fmt(gain)} MATCH`), ` back for ${fmt(amt)} staked. The odds move as other people bet.`);
+    const needsAllowance = state.account && !state.isOracle && amt > state.allowance;
+    if (needsAllowance) estimate.append(el("span", { class: "first" },
+      " First bet from this wallet: MetaMask asks twice, once to let the pool use your MATCH and once for the bet. Later bets need one confirmation."));
     go.textContent = `Bet ${fmt(amt)} MATCH on ${team}`;
     go.disabled = state.busy || !state.account || !state.chainOk || tooLow || tooHigh || state.isOracle;
     go.title = state.isOracle ? "The oracle account cannot bet" : !state.account ? "Connect MetaMask first" : tooHigh ? "More than your MATCH balance" : tooLow ? "Minimum 1 MATCH" : "";

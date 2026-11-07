@@ -129,8 +129,14 @@ A static page served by GitHub Pages, plain JavaScript + ethers v6, no build ste
 - **The chain is the source of truth.** `board.json` (from the oracle) only supplies team
   names, crests and scores; pools, stakes, results and claimable amounts are read live
   from the contracts.
-- **One-transaction bets:** the user signs an EIP-2612 permit (free) and
-  `placeBetWithPermit` uses it, so there is no separate `approve` transaction.
+- **Few wallet prompts:** the first bet asks for a one-time ERC-20 allowance (capped at
+  10,000 MATCH, not unlimited), every later bet is a single transaction. An earlier version
+  used EIP-2612 permit signatures (one transaction per bet), but wallet security layers
+  (MetaMask / Blockaid) treat off-chain Permit signatures as the classic wallet-drainer
+  pattern and stacked several warnings on every bet. The contract still exposes
+  `placeBetWithPermit` for integrators.
+- The account holding `ORACLE_ROLE` cannot bet from the web app: whoever settles games
+  must not hold a stake in them.
 - The payout preview uses the contract's own formula, including the 2 % burn.
 - Third-party data is rendered as text only (no `innerHTML`), and contract addresses
   cannot be overridden from the URL, so a crafted link cannot point a wallet elsewhere.
@@ -149,8 +155,8 @@ python -m pytest -q
   shootout → settlement with burn → refunds → board + audit log)
 
 - `tests/frontend/`: the real page driven by headless Chrome against the real contracts on a
-  local node with Sepolia's chain id: connect, faucet, permit bet, collect winnings and
-  refund, over-balance guard, and an XSS probe in a team name.
+  local node with Sepolia's chain id: connect, faucet, first bet (approve + bet) and second
+  bet (exactly one wallet prompt), collect winnings and refund, over-balance guard, and an XSS probe in a team name.
   ```bash
   cd tests/frontend && npm i hardhat@2 && npx hardhat node        # terminal 1
   python tests/frontend/setup_chain.py                             # terminal 2

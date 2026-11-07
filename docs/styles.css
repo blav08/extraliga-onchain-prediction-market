@@ -70,6 +70,7 @@ a.btn { display: inline-flex; align-items: center; text-decoration: none; }
 .btn.away { background: var(--red); }
 .btn:disabled, .btn.home:disabled, .btn.away:disabled { background: var(--edge); color: var(--mute); cursor: not-allowed; }
 .estimate .warn { color: var(--red); font-weight: 600; }
+.estimate .first { display: block; margin-top: 6px; color: var(--mute); }
 
 /* ------------------------------------------------------------ layout */
 main { max-width: 1080px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px) 64px; }

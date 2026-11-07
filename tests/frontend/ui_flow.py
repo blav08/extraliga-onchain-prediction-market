@@ -21,11 +21,14 @@ bal = lambda: token.functions.balanceOf(env["user"]).call() / E
 INIT = """
 window.__CONFIG_OVERRIDE__ = %s;
 window.__alerts = 0; window.alert = () => { window.__alerts++; };
+window.__prompts = [];   // every wallet popup the page triggers: signatures and transactions
 const RPC = "http://localhost:8545", USER = "%s";
 const listeners = {};
 window.ethereum = {
   isMetaMask: true,
   async request({ method, params = [] }) {
+    if (/^eth_sign|^personal_sign|^eth_sendTransaction$/.test(method))
+      window.__prompts.push(method === "eth_sendTransaction" ? "tx:" + params[0].data.slice(0, 10) : "sign:" + method);
     if (method === "eth_requestAccounts" || method === "eth_accounts") return window.__connected || method === "eth_requestAccounts" ? (window.__connected = true, [USER]) : [];
     const r = await fetch(RPC, { method: "POST", headers: { "content-type": "application/json" },
       body: JSON.stringify({ jsonrpc: "2.0", id: Date.now(), method, params }) }).then((x) => x.json());
@@ -69,22 +72,42 @@ async def main():
         await pg.wait_for_selector(".wallet:has-text('Next free tokens in')")
         print("PASS faucet: +100 MATCH, cooldown shown")
 
-        # bet: pick away team on the open game, type 30, bet via permit
+        # bet: pick away team on the open game, type 30; first bet needs a one-time allowance
         await pg.get_by_role("button", name="Bet on HC Kometa Brno").click()
         inp = pg.locator(f"#amt-{env['mid_open']}")
         await inp.fill("30")
         est = await pg.locator(".estimate").inner_text()
         print("estimate:", est)
         await pg.screenshot(path=str(HERE / "ticket.png"))
+        assert "MetaMask asks twice" in est
+        await pg.evaluate("window.__prompts = []")
         await pg.get_by_role("button", name="Bet 30 MATCH on HC Kometa Brno").click()
-        await pg.wait_for_selector(".toast:has-text('Bet: done')", timeout=20000)
+        await pg.wait_for_selector(".toast:has-text('Bet: done')", timeout=30000)
         stake = pool.functions.stakesOf(bytes.fromhex(env["mid_open"][2:]), env["user"]).call()
         assert stake == [0, 30 * E], stake
         assert bal() == 80, bal()
-        print("PASS bet with permit: 30 MATCH on away, single tx (no approve)")
+        prompts = await pg.evaluate("window.__prompts")
+        approve_sel = "0x" + Web3.keccak(text="approve(address,uint256)")[:4].hex().removeprefix("0x")
+        bet_sel = "0x" + Web3.keccak(text="placeBet(bytes32,uint8,uint256)")[:4].hex().removeprefix("0x")
+        assert prompts == ["tx:" + approve_sel, "tx:" + bet_sel], prompts
+        allowance = token.functions.allowance(env["user"], env["pool"]).call()
+        assert allowance == 10_000 * E - 30 * E, allowance
+        print("PASS first bet: approve + placeBet, no signature; allowance 10,000 MATCH capped (not unlimited)")
+
+        # second bet: a single wallet prompt
+        await pg.get_by_role("button", name="Bet on HC Kometa Brno").click()
+        await pg.locator(f"#amt-{env['mid_open']}").fill("5")
+        assert "MetaMask asks twice" not in await pg.locator(".estimate").inner_text()
+        await pg.evaluate("window.__prompts = []")
+        await pg.get_by_role("button", name="Bet 5 MATCH on HC Kometa Brno").click()
+        await pg.wait_for_selector(".toast:has-text('Bet: done')", timeout=20000)
+        await pg.wait_for_function("!document.querySelector('.toast').textContent.includes('Bet: done') || document.querySelector('.toast').hidden", timeout=8000)
+        assert await pg.evaluate("window.__prompts") == ["tx:" + bet_sel]
+        assert bal() == 75, bal()
+        print("PASS second bet: exactly one wallet prompt")
 
         # collect winnings and refund
-        for label, expected in [("Collect 98 MATCH", 178), ("Collect 10 MATCH", 188)]:
+        for label, expected in [("Collect 98 MATCH", 173), ("Collect 10 MATCH", 183)]:
             await pg.get_by_role("button", name=label).click()
             await pg.wait_for_selector(".toast:has-text('Collect: done')", timeout=20000)
             await pg.wait_for_function("document.querySelector('.toast').hidden || !document.querySelector('.toast').textContent.includes('Collect: done')", timeout=8000)
@@ -96,6 +119,7 @@ async def main():
         await pg.get_by_role("button", name="Bet on HC Sparta Praha").click()
         await pg.locator(f"#amt-{env['mid_open']}").fill("5000")
         assert await pg.get_by_role("button", name="Bet 5,000 MATCH on HC Sparta Praha").is_disabled()
+        assert not any(p.startswith("sign:") for p in await pg.evaluate("window.__prompts")), "page asked for a signature"
         print("PASS over-balance bet disabled")
 
         await pg.screenshot(path=str(HERE / "after.png"), full_page=True)

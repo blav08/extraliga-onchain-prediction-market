@@ -27,8 +27,9 @@ token.functions.setLimitExempt(faucet.address, True).transact({"from": admin})
 token.functions.transfer(faucet.address, 1_000_000 * E).transact({"from": admin})
 token.functions.transfer(other, 500 * E).transact({"from": admin})
 token.functions.transfer(user, 40 * E).transact({"from": admin})  # user starts with 40, faucet adds 100
-for a in (user, other):
-    token.functions.approve(pool.address, 2**256 - 1).transact({"from": a})
+token.functions.approve(pool.address, 2**256 - 1).transact({"from": other})
+# user allows exactly the two staged bets, so the UI's first bet must ask for a new allowance
+token.functions.approve(pool.address, 30 * E).transact({"from": user})
 
 now = w3.eth.get_block("latest").timestamp
 mid = lambda fid: Web3.keccak(text=f"thesportsdb:{fid}")
