@@ -163,6 +163,15 @@ python -m pytest -q
   python -m http.server 8765 -d docs &  python tests/frontend/ui_flow.py
   ```
 
+### Tokenomics simulation
+
+`python tokenomics/tokenomics.py` (extra deps: `pip install -r tokenomics/requirements.txt`)
+reads the live contract parameters from Sepolia and simulates supply month by month for
+5 years under bear / base / bull adoption: data rewards are minted into the free room under
+the cap, data payments and betting fees are burned. It adds a break-even analysis, a
+sensitivity heat map (burn share x reward), a seeded Monte Carlo, treasury runway and
+governance concentration, and writes figures plus ready-to-paste tables to `tokenomics/out/`.
+
 ### Payout audit
 
 `python scripts/verify_payouts.py` rebuilds every bet from on-chain events (full history
