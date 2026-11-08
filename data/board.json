@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generated_at_chain_ts": 1794148404,
+  "generated_at_chain_ts": 1794150264,
   "pool": "0x684C429c009088b2Ed69410d8e974aec5b4fa7Af",
   "chain_id": 11155111
  },
@@ -59,6 +59,44 @@
    "match_id": "0xfc91265d11f910688c6a896d0888f2f4e5fb704a8edf540829b738fb856d76fd",
    "chain_status": "OPEN",
    "betting_closes": 1794587400,
+   "pool_home": "0",
+   "pool_away": "0"
+  },
+  {
+   "provider": "thesportsdb",
+   "fixture_id": 2480739,
+   "start_ts": 1794754800,
+   "status_code": "NS",
+   "phase": "scheduled",
+   "home": "Sparta Prague",
+   "away": "Mountfield HK",
+   "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/ww265x1719041991.png",
+   "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/t83xr41630268220.png",
+   "score_home": null,
+   "score_away": null,
+   "shootout": null,
+   "match_id": "0x682d6698190ed9794613e6234fc2b8bee5c5985928fc09c8915af4b8f3ebd42b",
+   "chain_status": "OPEN",
+   "betting_closes": 1794754800,
+   "pool_home": "0",
+   "pool_away": "0"
+  },
+  {
+   "provider": "thesportsdb",
+   "fixture_id": 2480740,
+   "start_ts": 1794754800,
+   "status_code": "NS",
+   "phase": "scheduled",
+   "home": "Bílí Tygři Liberec",
+   "away": "Litvinov",
+   "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/mo3fgn1782978468.png",
+   "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/ptf67p1630268389.png",
+   "score_home": null,
+   "score_away": null,
+   "shootout": null,
+   "match_id": "0x40601e58a4c1302ebc205ebb72f7ffd8ba09f3f516ad8b3c49b561142b6c1d68",
+   "chain_status": "OPEN",
+   "betting_closes": 1794754800,
    "pool_home": "0",
    "pool_away": "0"
   }
