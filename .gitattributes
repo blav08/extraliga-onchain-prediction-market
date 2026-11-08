@@ -1,0 +1,2 @@
+# append-only audit log: concurrent oracle runs merge by keeping all lines
+data/oracle-log.jsonl merge=union

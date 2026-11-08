@@ -61,4 +61,11 @@ jobs:
           git config user.email "match-oracle[bot]@users.noreply.github.com"
           mkdir -p data && git add data/
           git diff --cached --quiet || git commit -m "oracle: update board [skip ci]"
-          git push
+          # Two runs can finish seconds apart (GitHub cron + external trigger). If the
+          # other run pushed first, rebase onto it and retry: board.json takes our newer
+          # snapshot (-X theirs), oracle-log.jsonl keeps both runs' lines (.gitattributes union).
+          for attempt in 1 2 3; do
+            git push && exit 0
+            git pull --rebase -X theirs origin main
+          done
+          exit 1
