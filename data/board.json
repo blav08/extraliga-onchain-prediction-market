@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generated_at_chain_ts": 1794150264,
+  "generated_at_chain_ts": 1794152028,
   "pool": "0x684C429c009088b2Ed69410d8e974aec5b4fa7Af",
   "chain_id": 11155111
  },
@@ -95,6 +95,25 @@
    "score_away": null,
    "shootout": null,
    "match_id": "0x40601e58a4c1302ebc205ebb72f7ffd8ba09f3f516ad8b3c49b561142b6c1d68",
+   "chain_status": "OPEN",
+   "betting_closes": 1794754800,
+   "pool_home": "0",
+   "pool_away": "0"
+  },
+  {
+   "provider": "thesportsdb",
+   "fixture_id": 2480741,
+   "start_ts": 1794754800,
+   "status_code": "NS",
+   "phase": "scheduled",
+   "home": "Rytíři Kladno",
+   "away": "Oceláři Třinec",
+   "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/xr410j1630269043.png",
+   "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/opiwnh1687415430.png",
+   "score_home": null,
+   "score_away": null,
+   "shootout": null,
+   "match_id": "0xbe81118db27b283d266a55dfbed371ac9f537146474ecf84990ff54c7b56b391",
    "chain_status": "OPEN",
    "betting_closes": 1794754800,
    "pool_home": "0",
