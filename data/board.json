@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generated_at_chain_ts": 1794414840,
+  "generated_at_chain_ts": 1794416676,
   "pool": "0x684C429c009088b2Ed69410d8e974aec5b4fa7Af",
   "chain_id": 11155111
  },
@@ -135,6 +135,25 @@
    "match_id": "0xd51e95cbf4e22adc207849a0457e327db7c6c1e6915c5df110f36eff1ade5d93",
    "chain_status": "OPEN",
    "betting_closes": 1795017600,
+   "pool_home": "0",
+   "pool_away": "0"
+  },
+  {
+   "provider": "thesportsdb",
+   "fixture_id": 2480723,
+   "start_ts": 1795021200,
+   "status_code": "NS",
+   "phase": "scheduled",
+   "home": "Mountfield HK",
+   "away": "Kometa Brno",
+   "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/t83xr41630268220.png",
+   "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/4jwbob1630268900.png",
+   "score_home": null,
+   "score_away": null,
+   "shootout": null,
+   "match_id": "0x899e37fb6942b9c23defd6734e0d86e6435a92eee4e1294eb5e776a5550a7180",
+   "chain_status": "OPEN",
+   "betting_closes": 1795021200,
    "pool_home": "0",
    "pool_away": "0"
   }
