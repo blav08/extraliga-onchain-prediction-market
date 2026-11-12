@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generated_at_chain_ts": 1794499452,
+  "generated_at_chain_ts": 1794501264,
   "pool": "0x684C429c009088b2Ed69410d8e974aec5b4fa7Af",
   "chain_id": 11155111
  },
@@ -154,6 +154,25 @@
    "match_id": "0x899e37fb6942b9c23defd6734e0d86e6435a92eee4e1294eb5e776a5550a7180",
    "chain_status": "OPEN",
    "betting_closes": 1795021200,
+   "pool_home": "0",
+   "pool_away": "0"
+  },
+  {
+   "provider": "thesportsdb",
+   "fixture_id": 2480746,
+   "start_ts": 1795105800,
+   "status_code": "NS",
+   "phase": "scheduled",
+   "home": "Motor České Budějovice",
+   "away": "Sparta Prague",
+   "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/f8724n1630268254.png",
+   "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/ww265x1719041991.png",
+   "score_home": null,
+   "score_away": null,
+   "shootout": null,
+   "match_id": "0x6caa8432952e8f950a9bf3b7460977a36848ca07de48a647e95b7aca4d322153",
+   "chain_status": "OPEN",
+   "betting_closes": 1795105800,
    "pool_home": "0",
    "pool_away": "0"
   }
