@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generated_at_chain_ts": 1794594876,
+  "generated_at_chain_ts": 1794596712,
   "pool": "0x684C429c009088b2Ed69410d8e974aec5b4fa7Af",
   "chain_id": 11155111
  },
@@ -47,17 +47,17 @@
    "provider": "thesportsdb",
    "fixture_id": 2480734,
    "start_ts": 1794587400,
-   "status_code": "BT",
-   "phase": "live",
+   "status_code": "FT",
+   "phase": "final",
    "home": "Mladá Boleslav",
    "away": "Vitkovice",
    "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/30tpzi1630268998.png",
    "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/i49zns1630268287.png",
-   "score_home": 0,
-   "score_away": 0,
+   "score_home": 3,
+   "score_away": 1,
    "shootout": null,
    "match_id": "0xfc91265d11f910688c6a896d0888f2f4e5fb704a8edf540829b738fb856d76fd",
-   "chain_status": "OPEN",
+   "chain_status": "CANCELLED",
    "betting_closes": 1794587400,
    "pool_home": "0",
    "pool_away": "0"
