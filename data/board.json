@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generated_at_chain_ts": 1794753864,
+  "generated_at_chain_ts": 1794755100,
   "pool": "0x684C429c009088b2Ed69410d8e974aec5b4fa7Af",
   "chain_id": 11155111
  },
@@ -173,6 +173,44 @@
    "match_id": "0x0aa8cde15f94aaca3d61a6053f2b21ddc4843c28268e030dfcc2e71916d7baa9",
    "chain_status": "OPEN",
    "betting_closes": 1795192200,
+   "pool_home": "0",
+   "pool_away": "0"
+  },
+  {
+   "provider": "thesportsdb",
+   "fixture_id": 2480754,
+   "start_ts": 1795359600,
+   "status_code": "NS",
+   "phase": "scheduled",
+   "home": "Rytíři Kladno",
+   "away": "Litvinov",
+   "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/xr410j1630269043.png",
+   "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/ptf67p1630268389.png",
+   "score_home": null,
+   "score_away": null,
+   "shootout": null,
+   "match_id": "0x88bc11939286647b5618c0c04bd77faf245d63d2074b0642230e7c845f4cab3c",
+   "chain_status": "OPEN",
+   "betting_closes": 1795359600,
+   "pool_home": "0",
+   "pool_away": "0"
+  },
+  {
+   "provider": "thesportsdb",
+   "fixture_id": 2480755,
+   "start_ts": 1795359600,
+   "status_code": "NS",
+   "phase": "scheduled",
+   "home": "Bílí Tygři Liberec",
+   "away": "Mladá Boleslav",
+   "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/mo3fgn1782978468.png",
+   "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/30tpzi1630268998.png",
+   "score_home": null,
+   "score_away": null,
+   "shootout": null,
+   "match_id": "0x9ff413fa217613a8a2f81b1b2b117dacfa6fc9358f90e365cde336e4c292afab",
+   "chain_status": "OPEN",
+   "betting_closes": 1795359600,
    "pool_home": "0",
    "pool_away": "0"
   }
