@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generated_at_chain_ts": 1794931464,
+  "generated_at_chain_ts": 1794933288,
   "pool": "0x684C429c009088b2Ed69410d8e974aec5b4fa7Af",
   "chain_id": 11155111
  },
@@ -173,6 +173,44 @@
    "match_id": "0x08b013fd849aa4aa425d7e8f60f3dc538e2805872ac64ad96e04dd8247220638",
    "chain_status": "OPEN",
    "betting_closes": 1795366800,
+   "pool_home": "0",
+   "pool_away": "0"
+  },
+  {
+   "provider": "thesportsdb",
+   "fixture_id": 2480760,
+   "start_ts": 1795537800,
+   "status_code": "NS",
+   "phase": "scheduled",
+   "home": "Mladá Boleslav",
+   "away": "Rytíři Kladno",
+   "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/30tpzi1630268998.png",
+   "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/xr410j1630269043.png",
+   "score_home": null,
+   "score_away": null,
+   "shootout": null,
+   "match_id": "0xe360c246f90c173f9c6468c9f0ddff4c0aced7816c5f6ec7df3a0f7fd7a27400",
+   "chain_status": "OPEN",
+   "betting_closes": 1795537800,
+   "pool_home": "0",
+   "pool_away": "0"
+  },
+  {
+   "provider": "thesportsdb",
+   "fixture_id": 2480761,
+   "start_ts": 1795537800,
+   "status_code": "NS",
+   "phase": "scheduled",
+   "home": "Motor České Budějovice",
+   "away": "Plzen",
+   "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/f8724n1630268254.png",
+   "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/5tawzs1782981979.png",
+   "score_home": null,
+   "score_away": null,
+   "shootout": null,
+   "match_id": "0x66c512c7861639c804132ed8a17e0352022007e92603260402a6e4c050e66afd",
+   "chain_status": "OPEN",
+   "betting_closes": 1795537800,
    "pool_home": "0",
    "pool_away": "0"
   }
