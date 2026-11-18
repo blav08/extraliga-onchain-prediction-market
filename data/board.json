@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generated_at_chain_ts": 1795028676,
+  "generated_at_chain_ts": 1795030488,
   "pool": "0x684C429c009088b2Ed69410d8e974aec5b4fa7Af",
   "chain_id": 11155111
  },
@@ -28,8 +28,8 @@
    "provider": "thesportsdb",
    "fixture_id": 2480723,
    "start_ts": 1795021200,
-   "status_code": "P3",
-   "phase": "live",
+   "status_code": "FT",
+   "phase": "final",
    "home": "Mountfield HK",
    "away": "Kometa Brno",
    "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/t83xr41630268220.png",
@@ -38,7 +38,7 @@
    "score_away": 0,
    "shootout": null,
    "match_id": "0x899e37fb6942b9c23defd6734e0d86e6435a92eee4e1294eb5e776a5550a7180",
-   "chain_status": "OPEN",
+   "chain_status": "CANCELLED",
    "betting_closes": 1795021200,
    "pool_home": "0",
    "pool_away": "0"
