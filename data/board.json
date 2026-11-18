@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generated_at_chain_ts": 1795026876,
+  "generated_at_chain_ts": 1795028676,
   "pool": "0x684C429c009088b2Ed69410d8e974aec5b4fa7Af",
   "chain_id": 11155111
  },
@@ -28,13 +28,13 @@
    "provider": "thesportsdb",
    "fixture_id": 2480723,
    "start_ts": 1795021200,
-   "status_code": "BT",
+   "status_code": "P3",
    "phase": "live",
    "home": "Mountfield HK",
    "away": "Kometa Brno",
    "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/t83xr41630268220.png",
    "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/4jwbob1630268900.png",
-   "score_home": 3,
+   "score_home": 6,
    "score_away": 0,
    "shootout": null,
    "match_id": "0x899e37fb6942b9c23defd6734e0d86e6435a92eee4e1294eb5e776a5550a7180",
