@@ -19,6 +19,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import time
 from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -45,6 +46,30 @@ def topic(sig: str) -> str:
     return "0x" + Web3.keccak(text=sig).hex().removeprefix("0x")
 
 
+class ExplorerUnavailable(RuntimeError):
+    """The block explorer could not be reached. This means "could not check", not "numbers are wrong"."""
+
+
+def _explorer_get(params: dict, tries: int = 3) -> dict:
+    """GET the explorer API, retrying timeouts, connection errors and 5xx answers with a growing pause."""
+    last: Exception | None = None
+    for attempt in range(1, tries + 1):
+        try:
+            r = requests.get(EXPLORER_API, params=params, timeout=45)
+            if r.status_code >= 500:
+                raise requests.HTTPError(f"HTTP {r.status_code}", response=r)
+            r.raise_for_status()   # a 4xx is our bug, not an outage: let it fail loudly
+            return r.json()
+        except (requests.Timeout, requests.ConnectionError, requests.HTTPError) as e:
+            if isinstance(e, requests.HTTPError) and e.response is not None and e.response.status_code < 500:
+                raise
+            last = e
+            print(f"  explorer attempt {attempt}/{tries} failed: {type(e).__name__}", file=sys.stderr)
+            if attempt < tries:
+                time.sleep(10 * attempt)
+    raise ExplorerUnavailable(f"{EXPLORER_API} unreachable after {tries} tries ({type(last).__name__})")
+
+
 def explorer_logs(address: str, topic0: str, topic1: str | None = None, topic2: str | None = None) -> list[dict]:
     params = {"module": "logs", "action": "getLogs", "fromBlock": "0", "toBlock": "latest",
               "address": address, "topic0": topic0}
@@ -52,9 +77,7 @@ def explorer_logs(address: str, topic0: str, topic1: str | None = None, topic2: 
         params.update(topic1=topic1, topic0_1_opr="and")
     if topic2:
         params.update(topic2=topic2, topic0_2_opr="and", topic1_2_opr="and")
-    r = requests.get(EXPLORER_API, params=params, timeout=30)
-    r.raise_for_status()
-    body = r.json()
+    body = _explorer_get(params)
     if body.get("status") == "0" and body.get("message") != "No logs found":
         raise RuntimeError(f"explorer error: {body}")
     return body.get("result") or []
@@ -185,4 +208,12 @@ def audit(only: str | None) -> int:
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--match", help="audit a single match id (0x…)")
-    sys.exit(audit(ap.parse_args().match))
+    try:
+        sys.exit(audit(ap.parse_args().match))
+    except ExplorerUnavailable as e:
+        # An explorer outage must not turn the oracle run red: nothing was found wrong,
+        # we just could not look. Show a yellow warning in the Actions UI and pass.
+        # A real mismatch still exits 1 from audit().
+        print(f"::warning title=Payout audit skipped::{e}")
+        print(f"Payout audit SKIPPED: {e}")
+        sys.exit(0)
