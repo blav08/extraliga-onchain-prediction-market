@@ -2,13 +2,13 @@
  "chain": {
   "cap": 100000000.0,
   "initial_supply": 55000000,
-  "total_supply": 55000099.8,
+  "total_supply": 55000082.8,
   "burn_share": 0.3,
   "max_burn_share": 0.8,
   "max_wallet_share": 0.02,
   "max_reward_per_match": 500.0,
   "bet_fee": 0.02,
-  "source": "Sepolia, read 2026-11-07"
+  "source": "Sepolia, read 2026-11-20"
  },
  "allocation": {
   "Community data rewards": 45,
@@ -63,38 +63,38 @@
    {
     "year": 1,
     "minted": 80800,
-    "burned": 81169.3581494152,
+    "burned": 81169.35814941522,
     "burned_bets": 5074.340070233377,
     "unpaid": 0,
-    "end_supply": 54999730.44185059,
-    "inflation_pct": -0.0006715590530781412
+    "end_supply": 54999713.44185059,
+    "inflation_pct": -0.0006715592606565401
    },
    {
     "year": 2,
     "minted": 80800,
-    "burned": 91463.66444250746,
+    "burned": 91463.66444250745,
     "burned_bets": 5717.893402540588,
     "unpaid": 0,
-    "end_supply": 54989066.77740808,
-    "inflation_pct": -0.019388575829082377
+    "end_supply": 54989049.77740808,
+    "inflation_pct": -0.01938858182194414
    },
    {
     "year": 3,
     "minted": 80800,
-    "burned": 103063.54644140885,
-    "burned_bets": 6443.06540560919,
+    "burned": 103063.54644140883,
+    "burned_bets": 6443.065405609189,
     "unpaid": 0,
-    "end_supply": 54966803.23096667,
-    "inflation_pct": -0.04048722363579893
+    "end_supply": 54966786.23096667,
+    "inflation_pct": -0.04048723615251992
    },
    {
     "year": 4,
     "minted": 80800,
-    "burned": 116134.58382434817,
+    "burned": 116134.58382434818,
     "burned_bets": 7260.2073698178265,
     "unpaid": 0,
-    "end_supply": 54931468.64714233,
-    "inflation_pct": -0.06428349794306287
+    "end_supply": 54931451.64714233,
+    "inflation_pct": -0.06428351782451491
    },
    {
     "year": 5,
@@ -102,8 +102,8 @@
     "burned": 130863.35591723492,
     "burned_bets": 8180.983388259323,
     "unpaid": 0,
-    "end_supply": 54881405.291225076,
-    "inflation_pct": -0.09113784348064868
+    "end_supply": 54881388.291225076,
+    "inflation_pct": -0.09113787168567589
    }
   ],
   "base": [
@@ -113,17 +113,17 @@
     "burned": 248147.05119956535,
     "burned_bets": 22759.969236685032,
     "unpaid": 0,
-    "end_supply": 54832752.74880044,
-    "inflation_pct": -0.30426681371140685
+    "end_supply": 54832735.74880044,
+    "inflation_pct": -0.30426690775737786
    },
    {
     "year": 2,
     "minted": 161600,
-    "burned": 393302.25379501394,
+    "burned": 393302.253795014,
     "burned_bets": 32450.27392348781,
     "unpaid": 0,
-    "end_supply": 54601050.49500543,
-    "inflation_pct": -0.42256177590880295
+    "end_supply": 54601033.49500543,
+    "inflation_pct": -0.4225619069172182
    },
    {
     "year": 3,
@@ -131,55 +131,55 @@
     "burned": 624001.9772358033,
     "burned_bets": 46266.33132755343,
     "unpaid": 0,
-    "end_supply": 54219448.51776962,
-    "inflation_pct": -0.6988912736591302
+    "end_supply": 54219431.51776962,
+    "inflation_pct": -0.6988914912585242
    },
    {
     "year": 4,
     "minted": 323200,
-    "burned": 990938.1084988095,
+    "burned": 990938.1084988094,
     "burned_bets": 65964.72558469175,
     "unpaid": 0,
-    "end_supply": 53551710.4092708,
-    "inflation_pct": -1.231547215534623
+    "end_supply": 53551693.4092708,
+    "inflation_pct": -1.2315476016748317
    },
    {
     "year": 5,
     "minted": 404000,
-    "burned": 1574962.1130132382,
+    "burned": 1574962.1130132384,
     "burned_bets": 94049.92565019497,
     "unpaid": 0,
-    "end_supply": 52380748.29625756,
-    "inflation_pct": -2.186600771598368
+    "end_supply": 52380731.29625756,
+    "inflation_pct": -2.186601465735394
    }
   ],
   "bull": [
    {
     "year": 1,
     "minted": 80800,
-    "burned": 539723.6307555196,
+    "burned": 539723.6307555197,
     "burned_bets": 56735.44644205908,
     "unpaid": 0,
-    "end_supply": 54541176.169244476,
-    "inflation_pct": -0.8344050873077213
+    "end_supply": 54541159.169244476,
+    "inflation_pct": -0.8344053452143507
    },
    {
     "year": 2,
     "minted": 242400,
     "burned": 1201944.7914369628,
-    "burned_bets": 114162.8651587262,
+    "burned_bets": 114162.86515872618,
     "unpaid": 0,
-    "end_supply": 53581631.37780751,
-    "inflation_pct": -1.7593034452712208
+    "end_supply": 53581614.37780751,
+    "inflation_pct": -1.7593039936306454
    },
    {
     "year": 3,
     "minted": 404000,
     "burned": 2679611.419474475,
-    "burned_bets": 229718.11448702664,
+    "burned_bets": 229718.1144870266,
     "unpaid": 0,
-    "end_supply": 51306019.95833302,
-    "inflation_pct": -4.2469991319021405
+    "end_supply": 51306002.95833302,
+    "inflation_pct": -4.24700047936033
    },
    {
     "year": 4,
@@ -187,8 +187,8 @@
     "burned": 5979867.0748316785,
     "burned_bets": 462237.9794875103,
     "unpaid": 0,
-    "end_supply": 45891752.88350134,
-    "inflation_pct": -10.552888489944745
+    "end_supply": 45891735.88350134,
+    "inflation_pct": -10.552891986594148
    },
    {
     "year": 5,
@@ -196,8 +196,8 @@
     "burned": 13356871.471012823,
     "burned_bets": 930113.6314731622,
     "unpaid": 0,
-    "end_supply": 33262081.412488513,
-    "inflation_pct": -27.520568898455288
+    "end_supply": 33262064.412488513,
+    "inflation_pct": -27.52057909309409
    }
   ]
  },
@@ -254,9 +254,9 @@
  "monte_carlo": {
   "runs": 2000,
   "seed": 2026,
-  "p5": 29167810.512060266,
-  "p50": 52088366.65747094,
-  "p95": 55736198.84298982,
+  "p5": 29167793.512060266,
+  "p50": 52088349.65747094,
+  "p95": 55736181.84298982,
   "prob_supply_up": 0.1285,
   "prob_deflation": 0.8715,
   "prob_cap_hit": 0.0,
@@ -283,12 +283,12 @@
  "treasury_runway": {
   "bear": {
    "treasury_funding_buckets": 40000000.0,
-   "data_burn_5y": 490018.0191384542,
-   "share_of_funding_used_pct": 1.2250450478461354
+   "data_burn_5y": 490018.0191384543,
+   "share_of_funding_used_pct": 1.2250450478461357
   },
   "base": {
    "treasury_funding_buckets": 40000000.0,
-   "data_burn_5y": 3569860.278019817,
+   "data_burn_5y": 3569860.2780198175,
    "share_of_funding_used_pct": 8.924650695049543
   },
   "bull": {

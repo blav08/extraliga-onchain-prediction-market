@@ -1,14 +1,14 @@
 # MATCH tokenomics: generated tables
 
-Generated 2026-11-07 by tokenomics/tokenomics.py. Contract parameters from: Sepolia, read 2026-11-07.
+Generated 2026-11-20 by tokenomics/tokenomics.py. Contract parameters from: Sepolia, read 2026-11-20.
 
 
 ## Contract parameters (evidence)
 | Parameter | Value |
 | --- | --- |
 | Hard cap | 100,000,000 MATCH |
-| Outstanding supply | 55,000,099.80 MATCH |
-| Free room under the cap | 44,999,900.20 MATCH |
+| Outstanding supply | 55,000,082.80 MATCH |
+| Free room under the cap | 44,999,917.20 MATCH |
 | Burn share of data payments | 30% (governance max 80%) |
 | Anti-whale wallet limit | 2% of cap = 2,000,000 MATCH |
 | Max reward per verified match | 500 MATCH |
@@ -33,29 +33,29 @@ Generated 2026-11-07 by tokenomics/tokenomics.py. Contract parameters from: Sepo
 ## Scenario 'bear': yearly supply
 | Year | Minted | Burned (of which bets) | End supply | Inflation | Unpaid rewards |
 | --- | --- | --- | --- | --- | --- |
-| 1 | 80,800 | 81,169 (5,074) | 54,999,730 | -0.00 % | 0 |
-| 2 | 80,800 | 91,464 (5,718) | 54,989,067 | -0.02 % | 0 |
-| 3 | 80,800 | 103,064 (6,443) | 54,966,803 | -0.04 % | 0 |
-| 4 | 80,800 | 116,135 (7,260) | 54,931,469 | -0.06 % | 0 |
-| 5 | 80,800 | 130,863 (8,181) | 54,881,405 | -0.09 % | 0 |
+| 1 | 80,800 | 81,169 (5,074) | 54,999,713 | -0.00 % | 0 |
+| 2 | 80,800 | 91,464 (5,718) | 54,989,050 | -0.02 % | 0 |
+| 3 | 80,800 | 103,064 (6,443) | 54,966,786 | -0.04 % | 0 |
+| 4 | 80,800 | 116,135 (7,260) | 54,931,452 | -0.06 % | 0 |
+| 5 | 80,800 | 130,863 (8,181) | 54,881,388 | -0.09 % | 0 |
 
 ## Scenario 'base': yearly supply
 | Year | Minted | Burned (of which bets) | End supply | Inflation | Unpaid rewards |
 | --- | --- | --- | --- | --- | --- |
-| 1 | 80,800 | 248,147 (22,760) | 54,832,753 | -0.30 % | 0 |
-| 2 | 161,600 | 393,302 (32,450) | 54,601,050 | -0.42 % | 0 |
-| 3 | 242,400 | 624,002 (46,266) | 54,219,449 | -0.70 % | 0 |
-| 4 | 323,200 | 990,938 (65,965) | 53,551,710 | -1.23 % | 0 |
-| 5 | 404,000 | 1,574,962 (94,050) | 52,380,748 | -2.19 % | 0 |
+| 1 | 80,800 | 248,147 (22,760) | 54,832,736 | -0.30 % | 0 |
+| 2 | 161,600 | 393,302 (32,450) | 54,601,033 | -0.42 % | 0 |
+| 3 | 242,400 | 624,002 (46,266) | 54,219,432 | -0.70 % | 0 |
+| 4 | 323,200 | 990,938 (65,965) | 53,551,693 | -1.23 % | 0 |
+| 5 | 404,000 | 1,574,962 (94,050) | 52,380,731 | -2.19 % | 0 |
 
 ## Scenario 'bull': yearly supply
 | Year | Minted | Burned (of which bets) | End supply | Inflation | Unpaid rewards |
 | --- | --- | --- | --- | --- | --- |
-| 1 | 80,800 | 539,724 (56,735) | 54,541,176 | -0.83 % | 0 |
-| 2 | 242,400 | 1,201,945 (114,163) | 53,581,631 | -1.76 % | 0 |
-| 3 | 404,000 | 2,679,611 (229,718) | 51,306,020 | -4.25 % | 0 |
-| 4 | 565,600 | 5,979,867 (462,238) | 45,891,753 | -10.55 % | 0 |
-| 5 | 727,200 | 13,356,871 (930,114) | 33,262,081 | -27.52 % | 0 |
+| 1 | 80,800 | 539,724 (56,735) | 54,541,159 | -0.83 % | 0 |
+| 2 | 242,400 | 1,201,945 (114,163) | 53,581,614 | -1.76 % | 0 |
+| 3 | 404,000 | 2,679,611 (229,718) | 51,306,003 | -4.25 % | 0 |
+| 4 | 565,600 | 5,979,867 (462,238) | 45,891,736 | -10.55 % | 0 |
+| 5 | 727,200 | 13,356,871 (930,114) | 33,262,064 | -27.52 % | 0 |
 
 ## 4.4 Break-even: data spend that neutralises one league's in-season rewards
 One league in a season month mints 52 x 200 = 10,400 MATCH.
