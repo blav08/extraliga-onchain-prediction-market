@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generated_at_chain_ts": 1795188864,
+  "generated_at_chain_ts": 1795190688,
   "pool": "0x684C429c009088b2Ed69410d8e974aec5b4fa7Af",
   "chain_id": 11155111
  },
@@ -192,6 +192,25 @@
    "match_id": "0x6c5de4eaf6bae947678ef2f825cf40674ef9666df54c93e48c6d627d832062c3",
    "chain_status": "OPEN",
    "betting_closes": 1795539600,
+   "pool_home": "0",
+   "pool_away": "0"
+  },
+  {
+   "provider": "thesportsdb",
+   "fixture_id": 2480767,
+   "start_ts": 1795795200,
+   "status_code": "NS",
+   "phase": "scheduled",
+   "home": "Oceláři Třinec",
+   "away": "Dynamo Pardubice",
+   "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/opiwnh1687415430.png",
+   "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/dxzaz21630268959.png",
+   "score_home": null,
+   "score_away": null,
+   "shootout": null,
+   "match_id": "0xf6e9232b9d462365b1d26a63927af05adb2ad35ba3ed09be067abf9b3f325e1b",
+   "chain_status": "OPEN",
+   "betting_closes": 1795795200,
    "pool_home": "0",
    "pool_away": "0"
   }
