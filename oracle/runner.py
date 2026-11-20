@@ -10,12 +10,17 @@ from typing import Callable
 from .chain import PoolClient
 from .ledger import append_log, write_board
 from .planner import Kind, Policy, plan
-from .sources import Fixture
+from .sources import Fixture, Phase
 
 log = logging.getLogger("oracle")
 
 # Only look at fixtures near "now": keeps RPC reads small (~2 weeks of games)
 LOOKBACK_S = 7 * 24 * 3600
+
+# Settled / cancelled games stay on the board this long, so winners and refunded
+# bettors still see a "Collect" button after the data source stops listing the game.
+# The contract itself has no claim deadline; this only limits what the web app lists.
+RESULTS_KEEP_S = 30 * 24 * 3600
 
 
 @dataclass
@@ -42,6 +47,54 @@ def open_markets_from_log(audit: Path, provider: str) -> set[int]:
             continue
         (created if e["action"] == "create" else closed).add(ev["fixture_id"])
     return created - closed
+
+
+def closed_markets_from_log(audit: Path, now: int, keep_s: int = RESULTS_KEEP_S,
+                            previous_board: Path | None = None) -> list[Fixture]:
+    """
+    Games this oracle settled or cancelled within the last `keep_s` seconds,
+    rebuilt from its own audit log. The log keeps the evidence (score, status,
+    start time) and the team names, so the board can still show these games
+    after the provider's schedule no longer returns them. Team logos are not in
+    the log, so they are carried over from the previous board when available.
+    """
+    if not audit.exists():
+        return []
+    logos: dict[str, tuple[str | None, str | None]] = {}
+    if previous_board and previous_board.exists():
+        try:
+            for m in json.loads(previous_board.read_text(encoding="utf-8")).get("matches", []):
+                logos[m["match_id"].lower()] = (m.get("home_logo"), m.get("away_logo"))
+        except (ValueError, KeyError):
+            pass  # a broken old board only costs us logos, never the run
+
+    latest: dict[str, dict] = {}  # match_id -> last successful settle/cancel entry
+    for line in audit.read_text(encoding="utf-8").splitlines():
+        try:
+            e = json.loads(line)
+        except ValueError:
+            continue
+        if e.get("dry_run") or not e.get("ok") or e.get("action") not in ("settle", "cancel"):
+            continue
+        latest[e["match_id"].lower()] = e
+
+    out = []
+    for mid, e in latest.items():
+        ev = e.get("evidence") or {}
+        start = ev.get("start_ts")
+        if start is None or now - start > keep_s:
+            continue  # older than the keep window
+        home, _, away = (e.get("match") or "").partition(" vs ")
+        score = ev.get("score") or [None, None]
+        home_logo, away_logo = logos.get(mid, (None, None))
+        out.append(Fixture(
+            provider=ev["provider"], fixture_id=int(ev["fixture_id"]), start_ts=int(start),
+            status_code=ev.get("status") or "",
+            phase=Phase.FINAL if e["action"] == "settle" else Phase.VOID,
+            home=home, away=away, home_logo=home_logo, away_logo=away_logo,
+            score_home=score[0], score_away=score[1], shootout=ev.get("shootout"),
+        ))
+    return out
 
 
 def reconcile(pool: PoolClient, all_fixtures: list[Fixture], data_dir: Path,
@@ -90,7 +143,22 @@ def reconcile(pool: PoolClient, all_fixtures: list[Fixture], data_dir: Path,
 
     if rep.sent:
         chain, pools = pool.matches([f.match_id for f in fixtures])  # board shows fresh state
-    write_board(data_dir / "board.json", fixtures, chain, pools,
+
+    # Add recently settled / cancelled games that fell out of the schedule window,
+    # so the web app can still offer "Collect" for unclaimed winnings and refunds.
+    # They are only shown, never planned: the planner leaves terminal games alone anyway.
+    board_path = data_dir / "board.json"
+    shown = {f.match_id for f in fixtures}
+    results = [f for f in closed_markets_from_log(audit, now, previous_board=board_path)
+               if f.match_id not in shown]
+    if results:
+        extra_chain, extra_pools = pool.matches([f.match_id for f in results])
+        # Only games somebody staked on: a settled game with empty pools was
+        # auto-cancelled by the contract and would show as a confusing "Void"
+        results = [f for f in results if sum(extra_pools[f.match_id]) > 0]
+        chain, pools = {**chain, **extra_chain}, {**pools, **extra_pools}
+    board_fixtures = fixtures + results
+    write_board(board_path, board_fixtures, chain, pools,
                 {"generated_at_chain_ts": pool.now(), "pool": pool.pool.address,
                  "chain_id": pool.w3.eth.chain_id})
     return rep

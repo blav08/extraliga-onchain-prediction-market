@@ -95,7 +95,9 @@ def test_full_matchday(env):
 
     # --- outputs for the frontend and the audit trail
     board = json.loads((env["data"] / "board.json").read_text())
-    assert {m["fixture_id"]: m["chain_status"] for m in board["matches"]} == {100: "SETTLED"}
+    # game 200 left the provider's schedule, but Bob still has a refund to collect,
+    # so it stays on the board (rebuilt from the audit log) instead of vanishing
+    assert {m["fixture_id"]: m["chain_status"] for m in board["matches"]} == {100: "SETTLED", 200: "CANCELLED"}
     log = [json.loads(line) for line in (env["data"] / "oracle-log.jsonl").read_text().splitlines()]
     assert [e["action"] for e in log] == ["create", "create", "cancel", "settle"]
     assert log[-1]["evidence"]["shootout"] == "3-1" and log[-1]["tx_hash"].startswith("0x")
