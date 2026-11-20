@@ -1,29 +1,10 @@
 {
  "meta": {
-  "generated_at_chain_ts": 1795132092,
+  "generated_at_chain_ts": 1795133064,
   "pool": "0x684C429c009088b2Ed69410d8e974aec5b4fa7Af",
   "chain_id": 11155111
  },
  "matches": [
-  {
-   "provider": "thesportsdb",
-   "fixture_id": 2480746,
-   "start_ts": 1795105800,
-   "status_code": "FT",
-   "phase": "final",
-   "home": "Motor České Budějovice",
-   "away": "Sparta Prague",
-   "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/f8724n1630268254.png",
-   "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/ww265x1719041991.png",
-   "score_home": 4,
-   "score_away": 6,
-   "shootout": null,
-   "match_id": "0x6caa8432952e8f950a9bf3b7460977a36848ca07de48a647e95b7aca4d322153",
-   "chain_status": "CANCELLED",
-   "betting_closes": 1795105800,
-   "pool_home": "0",
-   "pool_away": "0"
-  },
   {
    "provider": "thesportsdb",
    "fixture_id": 2480747,
