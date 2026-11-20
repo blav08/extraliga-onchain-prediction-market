@@ -1,10 +1,29 @@
 {
  "meta": {
-  "generated_at_chain_ts": 1795169064,
+  "generated_at_chain_ts": 1795170852,
   "pool": "0x684C429c009088b2Ed69410d8e974aec5b4fa7Af",
   "chain_id": 11155111
  },
  "matches": [
+  {
+   "provider": "thesportsdb",
+   "fixture_id": 2480733,
+   "start_ts": 1794587400,
+   "status_code": "FT",
+   "phase": "final",
+   "home": "Litvinov",
+   "away": "Motor České Budějovice",
+   "home_logo": null,
+   "away_logo": null,
+   "score_home": 3,
+   "score_away": 4,
+   "shootout": null,
+   "match_id": "0xa9be2cd9e283fa689f417e837ebe89f425424c490566be64c801b6ed102ec012",
+   "chain_status": "SETTLED",
+   "betting_closes": 1794587400,
+   "pool_home": "25000000000000000000",
+   "pool_away": "75000000000000000000"
+  },
   {
    "provider": "thesportsdb",
    "fixture_id": 2480747,
