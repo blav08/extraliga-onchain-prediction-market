@@ -20,6 +20,10 @@ const CONFIG = {
   // raw.githubusercontent serves the oracle's latest commit with CORS enabled.
   // Override for local testing with ?board=path/to/board.json
   board: "https://raw.githubusercontent.com/blav08/extraliga-onchain-prediction-market/main/data/board.json",
+  // The oracle's audit log: source of the dataset sold in the data shop
+  log: "https://raw.githubusercontent.com/blav08/extraliga-onchain-prediction-market/main/data/oracle-log.jsonl",
+  // Blockscout keeps the full event history (public RPC nodes only ~1.5 days)
+  explorerApi: "https://eth-sepolia.blockscout.com/api",
 };
 // Test harnesses may inject overrides before this script runs. Deliberately NOT read from
 // the URL: a crafted link must never point a user's wallet at a different contract.
@@ -44,6 +48,9 @@ const TOKEN_ABI = [
   "function approve(address spender, uint256 value) returns (bool)",
   "function nonces(address) view returns (uint256)",
   "function name() view returns (string)",
+  "function burnShareBps() view returns (uint16)",
+  "function payForData(bytes32 datasetId, uint256 amount)",
+  "event DataPurchased(address indexed buyer, bytes32 indexed datasetId, uint256 paid, uint256 burned)",
   "error ERC20InsufficientBalance(address sender, uint256 balance, uint256 needed)",
   "error WalletLimitExceeded(address account, uint256 balance, uint256 limit)",
   "error EnforcedPause()",
@@ -74,6 +81,20 @@ const ONE = 10n ** 18n;
 // flags unlimited approvals, and 10,000 MATCH covers ~100 days of faucet drips.
 const APPROVE_CAP = 10_000n * ONE;
 
+/*
+ * Data shop. The token's main use case: buying match data with MATCH.
+ * One dataset for now: every game the oracle has settled or cancelled, with the
+ * evidence it acted on and the transaction hash, rebuilt from the public audit log.
+ * Paying calls MatchToken.payForData, which burns burnShareBps of the price and
+ * sends the rest to the treasury; the DataPurchased event is the receipt.
+ */
+const DATASET = {
+  id: ethers.id("dataset:extraliga-verified-results:2026-27"),  // what payForData records on chain
+  title: "Verified Extraliga results 2026/27",
+  price: 50n * ONE,
+  file: "extraliga-verified-results.csv",
+};
+
 const state = {
   board: [], chain: new Map(), mine: new Map(), feeBps: 200n,
   account: null, chainOk: false, balance: 0n, eth: 0n, nextDrip: 0,
@@ -83,6 +104,7 @@ const state = {
   pick: new Map(),           // matchId -> 0 | 1, the side the user is staking on
   amount: new Map(),         // matchId -> typed stake, survives re-renders
   busy: false,
+  shop: { rows: [], burnBps: 3000n, owned: false, receipt: null },
 };
 
 const read = new ethers.JsonRpcProvider(CONFIG.rpc, CONFIG.chainId, { staticNetwork: true });
@@ -202,10 +224,60 @@ async function loadMine() {
   });
 }
 
+/** Dataset rows from the oracle's audit log: the last successful settle/cancel per game. */
+async function loadShop() {
+  const [res, bps] = await Promise.all([
+    fetch(`${CONFIG.log}?t=${Math.floor(Date.now() / 60000)}`, { cache: "no-store" }),
+    rToken.burnShareBps(),
+  ]);
+  if (!res.ok) throw new Error(`oracle-log.jsonl: HTTP ${res.status}`);
+  state.shop.burnBps = BigInt(bps);
+  const last = new Map();
+  for (const line of (await res.text()).split("\n")) {
+    let e;
+    try { e = JSON.parse(line); } catch { continue; }       // skip blank or broken lines
+    if (e.dry_run || !e.ok || !["settle", "cancel"].includes(e.action)) continue;
+    last.set(e.match_id, e);
+  }
+  state.shop.rows = [...last.values()].map((e) => {
+    const [home, away] = String(e.match || "").split(" vs ");
+    const ev = e.evidence || {};
+    return {
+      start: ev.start_ts, home, away, score: ev.score || [null, null], shootout: ev.shootout,
+      winner: e.action === "settle" ? e.winner : null, action: e.action,
+      provider: ev.provider, fixture: ev.fixture_id, matchId: e.match_id, tx: e.tx_hash,
+    };
+  }).sort((a, b) => b.start - a.start);                       // newest first
+}
+
+/** Has this wallet already paid for the dataset? Looks for its DataPurchased receipt. */
+async function loadOwned() {
+  state.shop.owned = false; state.shop.receipt = null;
+  if (!state.account) return;
+  const topic = (v) => ethers.zeroPadValue(v, 32).toLowerCase();
+  const q = new URLSearchParams({
+    module: "logs", action: "getLogs", fromBlock: "0", toBlock: "latest", address: CONFIG.token,
+    topic0: ethers.id("DataPurchased(address,bytes32,uint256,uint256)"),
+    topic1: topic(state.account), topic2: DATASET.id.toLowerCase(),
+    topic0_1_opr: "and", topic0_2_opr: "and", topic1_2_opr: "and",
+  });
+  try {
+    const body = await (await fetch(`${CONFIG.explorerApi}?${q}`)).json();
+    const logs = Array.isArray(body.result) ? body.result : [];
+    if (logs.length) { state.shop.owned = true; state.shop.receipt = logs[logs.length - 1].transactionHash; }
+  } catch (e) { console.warn("[EPM] purchase lookup failed", e); }
+  // The explorer indexes a few seconds behind the chain: remember a purchase made just now
+  const local = sessionStorageGet(`bought:${state.account}:${DATASET.id}`);
+  if (!state.shop.owned && local) { state.shop.owned = true; state.shop.receipt = local; }
+}
+
+function sessionStorageGet(k) { try { return sessionStorage.getItem(k); } catch { return null; } }
+function sessionStorageSet(k, v) { try { sessionStorage.setItem(k, v); } catch { /* private mode */ } }
+
 async function refresh() {
   try {
     await loadBoard();
-    await Promise.all([loadChain(), loadMine()]);
+    await Promise.all([loadChain(), loadMine(), loadShop(), loadOwned()]);
     $("#notice").textContent = "";
     $("#notice").hidden = true;
   } catch (e) {
@@ -263,7 +335,7 @@ async function connect() {
     state.account = ethers.getAddress(accounts[0]);
     await checkChain();
     $("#toast").hidden = true;
-    try { await loadMine(); } catch (e) { console.error("[EPM] loading balances failed", e); }
+    try { await Promise.all([loadMine(), loadOwned()]); } catch (e) { console.error("[EPM] loading balances failed", e); }
   } catch (e) {
     console.error("[EPM] connect failed", e);
     toast(explain(e), { err: true });
@@ -375,7 +447,80 @@ async function claim(matchId) {
   await send("Collect", () => new ethers.Contract(CONFIG.pool, POOL_ABI, signer).claim(matchId));
 }
 
+/** Buy the dataset: one transaction, no approval needed (the token burns from the buyer itself). */
+async function buyData() {
+  const signer = await walletProvider().getSigner();
+  const token = new ethers.Contract(CONFIG.token, TOKEN_ABI, signer);
+  let hash = null;
+  const ok = await send("Data purchase", async () => {
+    const tx = await token.payForData(DATASET.id, DATASET.price);
+    hash = tx.hash;
+    return tx;
+  });
+  if (!ok) return;
+  sessionStorageSet(`bought:${state.account}:${DATASET.id}`, hash);
+  state.shop.owned = true; state.shop.receipt = hash;
+  render();
+  downloadCsv();
+}
+
+/** CSV file built in the browser from the same rows the preview shows. */
+function downloadCsv() {
+  const cell = (v) => (v == null ? "" : /[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
+  const head = ["date_utc", "home", "away", "score_home", "score_away", "shootout", "winner",
+    "oracle_action", "provider", "fixture_id", "match_id", "oracle_tx"];
+  const lines = state.shop.rows.map((r) => [
+    r.start ? new Date(r.start * 1000).toISOString().slice(0, 16).replace("T", " ") : "",
+    r.home, r.away, r.score[0], r.score[1], r.shootout, r.winner, r.action, r.provider, r.fixture, r.matchId, r.tx,
+  ].map(cell).join(","));
+  const blob = new Blob([[head.join(","), ...lines].join("\n") + "\n"], { type: "text/csv" });
+  const a = el("a", { href: URL.createObjectURL(blob), download: DATASET.file });
+  document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 10_000);
+}
+
 // ------------------------------------------------------------------ rendering
+function renderShop() {
+  const box = $("#shop");
+  if (!box) return;
+  const { rows, burnBps, owned, receipt } = state.shop;
+  const burned = (DATASET.price * burnBps) / 10000n;
+  const score = (r) => r.score[0] == null ? "–" : `${r.score[0]}:${r.score[1]}${r.shootout ? " SO" : ""}`;
+  const preview = el("table", { class: "sample" },
+    el("thead", {}, el("tr", {}, el("th", {}, "Date"), el("th", {}, "Game"), el("th", {}, "Score"), el("th", {}, "Oracle tx"))),
+    el("tbody", {}, rows.slice(0, 3).map((r) => el("tr", {},
+      el("td", {}, r.start ? when(r.start) : ""),
+      el("td", {}, `${r.home} – ${r.away}`),
+      el("td", {}, score(r)),
+      el("td", {}, r.tx ? el("a", { href: `${CONFIG.explorer}/tx/${r.tx}`, target: "_blank", rel: "noopener" }, short(r.tx)) : "")))));
+
+  let action;
+  if (!state.account) action = el("button", { class: "btn", type: "button", onclick: connect }, "Connect MetaMask to buy");
+  else if (!state.chainOk) action = el("button", { class: "btn", type: "button", onclick: switchChain }, "Switch to Sepolia");
+  else if (state.isOracle) action = el("span", { class: "hint warn" }, "The oracle account does not buy data.");
+  else if (owned) action = el("div", { class: "owned" },
+    el("button", { class: "btn", type: "button", onclick: downloadCsv, disabled: !rows.length }, "Download CSV"),
+    el("span", { class: "hint" }, "Purchased. ", receipt ? el("a", { href: `${CONFIG.explorer}/tx/${receipt}`, target: "_blank", rel: "noopener" }, "See the burn on Blockscout") : ""));
+  else {
+    const short_ = state.balance < DATASET.price;
+    action = el("div", { class: "owned" },
+      el("button", { class: "btn", type: "button", onclick: buyData, disabled: state.busy || short_ || !rows.length },
+        `Buy for ${fmt(DATASET.price)} MATCH`),
+      short_ ? el("span", { class: "hint" }, "Not enough MATCH: take free tokens first.") : null);
+  }
+
+  box.replaceChildren(el("article", { class: "dataset" },
+    el("div", { class: "dataset-head" },
+      el("h3", {}, DATASET.title),
+      el("span", { class: "price" }, fmt(DATASET.price), el("small", {}, "MATCH"))),
+    el("p", {}, `Every Extraliga game the oracle has settled or cancelled: teams, final score, winner, the data provider's fixture id and the oracle's on-chain transaction. ${rows.length} games so far, growing after every matchday.`),
+    el("p", { class: "split" }, `Paying burns ${fmt(burned)} MATCH (${Number(burnBps) / 100} %) for good and sends ${fmt(DATASET.price - burned)} MATCH to the community treasury.`),
+    el("p", { class: "label" }, "Free sample: the three latest rows"),
+    preview,
+    action,
+    el("p", { class: "fineprint" }, "Test network demo: the purchase shows the payment and the burn. The underlying audit log is also public on GitHub, so this is not a paywall.")));
+}
+
 function renderWallet() {
   const w = $("#wallet");
   if (!state.account) {
@@ -553,6 +698,7 @@ function render() {
   // Keep keyboard focus on the stake field across re-renders
   const focusedId = document.activeElement?.id;
   renderWallet();
+  renderShop();
   const groups = { open: [], closed: [], done: [] };
   for (const m of [...state.board].sort((a, b) => a.start_ts - b.start_ts)) {
     const c = state.chain.get(m.match_id);
@@ -603,7 +749,7 @@ async function boot() {
     } catch (e) { console.warn("[EPM] silent reconnect failed", e); }
     eth.on?.("accountsChanged", async (a) => {
       state.account = a[0] ? ethers.getAddress(a[0]) : null;
-      try { await loadMine(); } catch { /* next refresh */ }
+      try { await Promise.all([loadMine(), loadOwned()]); } catch { /* next refresh */ }
       render();
     });
     eth.on?.("chainChanged", async () => { await checkChain(); try { await loadMine(); } catch { /* next refresh */ } render(); });

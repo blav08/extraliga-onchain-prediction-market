@@ -184,6 +184,25 @@ div.zone { cursor: default; }
 .claim { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
   background: var(--board); border: 1.5px solid var(--edge); border-radius: 18px; padding: 12px 18px; }
 
+/* ------------------------------------------------------------ data shop */
+.shop .lead { margin: -6px 0 18px; color: #3B414A; max-width: 44rem; }
+.dataset { background: var(--board); border: 1.5px solid var(--edge); border-radius: 18px; padding: 22px 24px; max-width: 46rem; display: grid; gap: 10px; }
+.dataset p { margin: 0; }
+.dataset-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.dataset-head h3 { margin: 0; }
+.dataset .price { font: 800 var(--s2)/1 var(--display); }
+.dataset .price small { font: 500 .85rem var(--text); color: var(--mute); margin-left: 3px; }
+.dataset .split { color: var(--mute); }
+.dataset .label { font-weight: 600; margin-top: 6px; }
+.sample { border-collapse: collapse; font-size: .92rem; width: 100%; }
+.sample th, .sample td { text-align: left; padding: 6px 10px 6px 0; border-bottom: 1px solid var(--edge); }
+.sample th { color: var(--mute); font-weight: 500; }
+.owned { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+.owned .hint { color: var(--mute); font-size: .9rem; }
+.dataset .warn { color: var(--red); font-weight: 600; }
+.fineprint { font-size: .85rem; color: var(--mute); }
+@media (max-width: 640px) { .sample th:nth-child(4), .sample td:nth-child(4) { display: none; } }
+
 /* ------------------------------------------------------------ how it works */
 .how { margin-top: 24px; }
 .steps { padding-left: 1.4rem; max-width: 46rem; display: grid; gap: 12px; }
