@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generated_at_chain_ts": 1795374264,
+  "generated_at_chain_ts": 1795376064,
   "pool": "0x684C429c009088b2Ed69410d8e974aec5b4fa7Af",
   "chain_id": 11155111
  },
@@ -66,17 +66,17 @@
    "provider": "thesportsdb",
    "fixture_id": 2480756,
    "start_ts": 1795366800,
-   "status_code": "P1",
-   "phase": "live",
+   "status_code": "FT",
+   "phase": "final",
    "home": "Dynamo Pardubice",
    "away": "Sparta Prague",
    "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/dxzaz21630268959.png",
    "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/ww265x1719041991.png",
-   "score_home": 0,
-   "score_away": 0,
+   "score_home": 3,
+   "score_away": 1,
    "shootout": null,
    "match_id": "0x08b013fd849aa4aa425d7e8f60f3dc538e2805872ac64ad96e04dd8247220638",
-   "chain_status": "OPEN",
+   "chain_status": "CANCELLED",
    "betting_closes": 1795366800,
    "pool_home": "0",
    "pool_away": "0"
