@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generated_at_chain_ts": 1795350840,
+  "generated_at_chain_ts": 1795352676,
   "pool": "0x684C429c009088b2Ed69410d8e974aec5b4fa7Af",
   "chain_id": 11155111
  },
@@ -192,6 +192,25 @@
    "match_id": "0x86166545c5a73fcd5beb3c5a8a3452ca44a17f1c7d49018e52b85d81686e6ced",
    "chain_status": "OPEN",
    "betting_closes": 1795797000,
+   "pool_home": "0",
+   "pool_away": "0"
+  },
+  {
+   "provider": "thesportsdb",
+   "fixture_id": 2480775,
+   "start_ts": 1795957200,
+   "status_code": "NS",
+   "phase": "scheduled",
+   "home": "Mladá Boleslav",
+   "away": "Oceláři Třinec",
+   "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/30tpzi1630268998.png",
+   "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/opiwnh1687415430.png",
+   "score_home": null,
+   "score_away": null,
+   "shootout": null,
+   "match_id": "0xb58f1730a30a416260e926dbd71cb1197f35a8f2a12e6c140035a3b54cedf523",
+   "chain_status": "OPEN",
+   "betting_closes": 1795957200,
    "pool_home": "0",
    "pool_away": "0"
   }
