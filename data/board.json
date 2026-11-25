@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generated_at_chain_ts": 1795620840,
+  "generated_at_chain_ts": 1795624452,
   "pool": "0x684C429c009088b2Ed69410d8e974aec5b4fa7Af",
   "chain_id": 11155111
  },
@@ -135,6 +135,25 @@
    "match_id": "0x1ac231468e3e0637268fe827ba09179398c473c3cc9c03c4267f35767ef3b490",
    "chain_status": "OPEN",
    "betting_closes": 1795964400,
+   "pool_home": "0",
+   "pool_away": "0"
+  },
+  {
+   "provider": "thesportsdb",
+   "fixture_id": 2480895,
+   "start_ts": 1796229000,
+   "status_code": "NS",
+   "phase": "scheduled",
+   "home": "Vitkovice",
+   "away": "Bílí Tygři Liberec",
+   "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/i49zns1630268287.png",
+   "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/mo3fgn1782978468.png",
+   "score_home": null,
+   "score_away": null,
+   "shootout": null,
+   "match_id": "0x39be190f0a8967e80c116479cdab2088a2ac78346b8c4cde5a72d1d9574c7775",
+   "chain_status": "OPEN",
+   "betting_closes": 1796229000,
    "pool_home": "0",
    "pool_away": "0"
   }
