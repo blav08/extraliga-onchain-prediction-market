@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generated_at_chain_ts": 1795700040,
+  "generated_at_chain_ts": 1795709076,
   "pool": "0x684C429c009088b2Ed69410d8e974aec5b4fa7Af",
   "chain_id": 11155111
  },
@@ -154,6 +154,25 @@
    "match_id": "0x39be190f0a8967e80c116479cdab2088a2ac78346b8c4cde5a72d1d9574c7775",
    "chain_status": "OPEN",
    "betting_closes": 1796229000,
+   "pool_home": "0",
+   "pool_away": "0"
+  },
+  {
+   "provider": "thesportsdb",
+   "fixture_id": 2480781,
+   "start_ts": 1796313600,
+   "status_code": "NS",
+   "phase": "scheduled",
+   "home": "Oceláři Třinec",
+   "away": "Sparta Prague",
+   "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/opiwnh1687415430.png",
+   "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/ww265x1719041991.png",
+   "score_home": null,
+   "score_away": null,
+   "shootout": null,
+   "match_id": "0x27218ed6c1789b86a2f48b75ba2d6d60446c860e88cd150b47e3765236b1f375",
+   "chain_status": "OPEN",
+   "betting_closes": 1796313600,
    "pool_home": "0",
    "pool_away": "0"
   }
