@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generated_at_chain_ts": 1795797264,
+  "generated_at_chain_ts": 1795799076,
   "pool": "0x684C429c009088b2Ed69410d8e974aec5b4fa7Af",
   "chain_id": 11155111
  },
@@ -192,6 +192,25 @@
    "match_id": "0x7583f773fd7348859b8cd35c32b6c9a22454f3f7f583e7f7500908177f3eb8b7",
    "chain_status": "OPEN",
    "betting_closes": 1796401800,
+   "pool_home": "0",
+   "pool_away": "0"
+  },
+  {
+   "provider": "thesportsdb",
+   "fixture_id": 2480782,
+   "start_ts": 1796403600,
+   "status_code": "NS",
+   "phase": "scheduled",
+   "home": "Energie Karlovy Vary",
+   "away": "Litvinov",
+   "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/2jzxjl1630268930.png",
+   "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/ptf67p1630268389.png",
+   "score_home": null,
+   "score_away": null,
+   "shootout": null,
+   "match_id": "0xdce2484ee34f5f51874bf05e648a270a4910e0142e595b09ab81ec851a3c624e",
+   "chain_status": "OPEN",
+   "betting_closes": 1796403600,
    "pool_home": "0",
    "pool_away": "0"
   }
