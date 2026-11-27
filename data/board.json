@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generated_at_chain_ts": 1795799076,
+  "generated_at_chain_ts": 1795800876,
   "pool": "0x684C429c009088b2Ed69410d8e974aec5b4fa7Af",
   "chain_id": 11155111
  },
@@ -211,6 +211,25 @@
    "match_id": "0xdce2484ee34f5f51874bf05e648a270a4910e0142e595b09ab81ec851a3c624e",
    "chain_status": "OPEN",
    "betting_closes": 1796403600,
+   "pool_home": "0",
+   "pool_away": "0"
+  },
+  {
+   "provider": "thesportsdb",
+   "fixture_id": 2480784,
+   "start_ts": 1796405400,
+   "status_code": "NS",
+   "phase": "scheduled",
+   "home": "Dynamo Pardubice",
+   "away": "Olomouc",
+   "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/dxzaz21630268959.png",
+   "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/oypucf1630268833.png",
+   "score_home": null,
+   "score_away": null,
+   "shootout": null,
+   "match_id": "0x449ee000f112c739fa31c88a2e3b7e0645b6d37960c3f565bb48b7525462f883",
+   "chain_status": "OPEN",
+   "betting_closes": 1796405400,
    "pool_home": "0",
    "pool_away": "0"
   }
