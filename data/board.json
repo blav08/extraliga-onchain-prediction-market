@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generated_at_chain_ts": 1795795452,
+  "generated_at_chain_ts": 1795797264,
   "pool": "0x684C429c009088b2Ed69410d8e974aec5b4fa7Af",
   "chain_id": 11155111
  },
@@ -173,6 +173,25 @@
    "match_id": "0x27218ed6c1789b86a2f48b75ba2d6d60446c860e88cd150b47e3765236b1f375",
    "chain_status": "OPEN",
    "betting_closes": 1796313600,
+   "pool_home": "0",
+   "pool_away": "0"
+  },
+  {
+   "provider": "thesportsdb",
+   "fixture_id": 2480783,
+   "start_ts": 1796401800,
+   "status_code": "NS",
+   "phase": "scheduled",
+   "home": "Vitkovice",
+   "away": "Plzen",
+   "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/i49zns1630268287.png",
+   "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/5tawzs1782981979.png",
+   "score_home": null,
+   "score_away": null,
+   "shootout": null,
+   "match_id": "0x7583f773fd7348859b8cd35c32b6c9a22454f3f7f583e7f7500908177f3eb8b7",
+   "chain_status": "OPEN",
+   "betting_closes": 1796401800,
    "pool_home": "0",
    "pool_away": "0"
   }
